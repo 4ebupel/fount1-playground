@@ -1,6 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { XanoClient } from "@xano/js-sdk";
+import { XanoClient, XanoNodeClient } from "@xano/js-sdk";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
       
-        const xano = new XanoClient({
+        const xano = new XanoNodeClient({
           apiGroupBaseUrl: process.env.XANO_API_GROUP_BASE_URL,
         });
       

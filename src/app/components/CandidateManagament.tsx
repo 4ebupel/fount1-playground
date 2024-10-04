@@ -11,9 +11,6 @@ import { User } from '../types/User'
 import Loader from './Loader'
 import { useSearchParams } from 'next/navigation'
 
-//  end of a month or end of a quarter + X amount of days or months.
-//  candidate has either a notice period or an availability day.
-
 export default function CandidateManagement() {
   const [isFilterBarOpen, setIsFilterBarOpen] = useState(true);
   const [selectedCandidate, setSelectedCandidate] = useState<User | null>(null);
