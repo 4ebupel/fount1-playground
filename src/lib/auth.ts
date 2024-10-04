@@ -1,19 +1,6 @@
-import { DefaultSession, NextAuthOptions } from "next-auth";
+import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { XanoClient } from "@xano/js-sdk";
-
-// Add this type declaration
-declare module "next-auth" {
-  interface User {
-    authToken?: string;
-  }
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-      authToken?: string;
-    } & DefaultSession["user"]
-  }
-}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -39,15 +26,22 @@ export const authOptions: NextAuthOptions = {
             password: credentials.password,
           });
 
-          const user = response.getBody().data;
-          console.log("Xano login response:", user);
+          const userAuthToken = response.getBody().authToken;
 
-          if (user) {
+          let user
+
+          if (userAuthToken) {
+            try {
+              const response = await xano.get("/auth/me");
+              user = response.getBody();
+            } catch (error) {
+              console.error("Error fetching user details:", error);
+            }
             console.log("User returned from Xano:", user);
             return {
               id: user.id,
               email: user.email,
-              authToken: user.authToken,
+              authToken: userAuthToken,
             };
           } else {
             console.log("No user returned from Xano");

@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { signIn } from "next-auth/react"; // Import signIn from next-auth
+import { signIn } from "next-auth/react";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -34,7 +34,7 @@ export default function LoginForm() {
         password,
       });
 
-      console.log("Sign in response:", res);
+      console.log("Sign in response: ", res);
 
       if (res?.error) {
         setError(res.error);
@@ -42,12 +42,12 @@ export default function LoginForm() {
       } else if (res?.ok) {
         router.push("/candidate");
       } else {
-        setError("An unexpected error occurred");
+        setError("An unexpected error occurred"); // <-- error fires either here
         setIsSubmitting(false);
       }
     } catch (err) {
-      console.error("Login error:", err);
-      setError("An unexpected error occurred");
+      console.error("Login error: ", err);
+      setError("An unexpected error occurred"); // <-- or here
       setIsSubmitting(false);
     }
   };
