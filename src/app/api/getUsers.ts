@@ -1,7 +1,7 @@
 import { User } from "../types/User";
 import axios from "axios";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 export async function getUsers(queryString: string): Promise<User[]> {
     const session = await getServerSession(authOptions);
