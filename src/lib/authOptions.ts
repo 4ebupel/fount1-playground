@@ -11,35 +11,42 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
+        console.log("authorize function invoked");
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password are required");
+          // Return null to indicate unsuccessful login
+          return null;
         }
-
+      
         const xano = new XanoClient({
           apiGroupBaseUrl: process.env.XANO_API_GROUP_BASE_URL,
         });
-
+      
         try {
           console.log("Attempting to login with Xano");
           const response = await xano.post("/auth/login", {
             email: credentials.email,
             password: credentials.password,
           });
-
-          const userAuthToken = response.getBody().authToken;
-
-          let user
-
+      
+          const userAuthToken = response.getBody()?.authToken;
+      
           if (userAuthToken) {
+            // Set the auth token for subsequent requests
+            xano.setAuthToken(userAuthToken);
+      
+            let user;
             try {
-              const response = await xano.get("/auth/me");
-              user = response.getBody();
+              const meResponse = await xano.get("/auth/me");
+              user = meResponse.getBody();
             } catch (error) {
               console.error("Error fetching user details:", error);
+              return null;
             }
+      
             console.log("User returned from Xano:", user);
+      
             return {
-              id: user.id,
+              id: user.id.toString(),
               email: user.email,
               authToken: userAuthToken,
             };
@@ -65,9 +72,9 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.email = token.email as string;
-        session.user.authToken = token.authToken as string;
+        session.user.id = token.id;
+        session.user.email = token.email;
+        session.user.authToken = token.authToken;
       }
       return session;
     },

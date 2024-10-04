@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
 import Header from './Header'
 import FilterBar from './FilterBar'
 import CandidateList from './CandidateList'

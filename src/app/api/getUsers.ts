@@ -1,10 +1,9 @@
 import { User } from "../types/User";
 import axios from "axios";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { useSession } from "next-auth/react";
 
 export async function getUsers(queryString: string): Promise<User[]> {
-    const session = await getServerSession(authOptions);
+    const { data: session, status } = useSession();
     const authToken = session?.user?.authToken;
 
     if (!authToken) {

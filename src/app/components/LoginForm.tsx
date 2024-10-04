@@ -25,7 +25,7 @@ export default function LoginForm() {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
-
+  
     try {
       console.log("Attempting to sign in");
       const res = await signIn("credentials", {
@@ -34,23 +34,34 @@ export default function LoginForm() {
         password,
       });
 
+      console.log("data sent: ", email, "password length: ", password.length.toString())
+  
+      if (!res) {
+        throw new Error("Sign-in request failed");
+      }
+  
       console.log("Sign in response: ", res);
-
-      if (res?.error) {
-        setError(res.error);
-        setIsSubmitting(false);
-      } else if (res?.ok) {
+  
+      if (res.error) {
+        if (res.error === "CredentialsSignin") {
+          setError("Invalid email or password");
+        } else {
+          setError(res.error);
+        }
+      } else if (res.ok) {
         router.push("/candidate");
       } else {
-        setError("An unexpected error occurred"); // <-- error fires either here
-        setIsSubmitting(false);
+        setError("An unexpected error occurred");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Login error: ", err);
-      setError("An unexpected error occurred"); // <-- or here
+      setError(err.message || "An unexpected error occurred");
+    } finally {
       setIsSubmitting(false);
     }
   };
+  
+  
 
   return (
     <Card className="w-[350px]">

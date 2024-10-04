@@ -1,29 +1,22 @@
-// next-env.d.ts
+// types/next-auth.d.ts
+import NextAuth from "next-auth";
 
-/// <reference types="next" />
-/// <reference types="next/types/global" />
-
-import 'next-auth';
-
-declare module 'next-auth' {
-  interface Session {
-    accessToken?: string;
-    user: {
-      id: string;
-      email: string;
-      authToken: string;
-    };
-  }
-
+declare module "next-auth" {
   interface User {
     id: string;
+    email: string;
     authToken: string;
+  }
+
+  interface Session {
+    user: User;
   }
 }
 
-declare module 'next-auth/jwt' {
+declare module "next-auth/jwt" {
   interface JWT {
-    accessToken?: string;
-    id?: string;
+    id: string;
+    email: string;
+    authToken: string;
   }
 }
