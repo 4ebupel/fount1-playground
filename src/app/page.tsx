@@ -1,15 +1,24 @@
-import { getServerSession } from "next-auth/next"
-import { redirect } from "next/navigation"
+'use client'
 
-export default async function Home() {
-  const session = await getServerSession()
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
+import Loader from "./components/Loader"
 
-  if (!session) {
-    redirect("/login")
-  } else {
-    redirect("/candidate")
-  }
+export default function Home() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
 
-  // Optionally, you can return null or a loading component
+  useEffect(() => {
+    if (status === "loading") return
+    if (status === "unauthenticated") {
+      router.push("/login")
+    } else if (status === "authenticated") {
+      router.push("/candidate")
+    }
+  }, [status, router])
+
+  if (status === "loading") return <div><Loader /></div>
+
   return null
 }

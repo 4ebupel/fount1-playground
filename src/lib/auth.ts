@@ -1,7 +1,6 @@
-import { NextAuthOptions } from "next-auth";
+import { DefaultSession, NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { XanoClient } from "@xano/js-sdk";
-import { DefaultSession } from "next-auth";
 
 // Add this type declaration
 declare module "next-auth" {
@@ -34,20 +33,24 @@ export const authOptions: NextAuthOptions = {
         });
 
         try {
+          console.log("Attempting to login with Xano");
           const response = await xano.post("/auth/login", {
             email: credentials.email,
             password: credentials.password,
           });
 
-          const user = response.getBody();
+          const user = response.getBody().data;
+          console.log("Xano login response:", user);
 
           if (user) {
+            console.log("User returned from Xano:", user);
             return {
               id: user.id,
               email: user.email,
               authToken: user.authToken,
             };
           } else {
+            console.log("No user returned from Xano");
             return null;
           }
         } catch (error) {
@@ -67,10 +70,10 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user && typeof token.id === 'string' && typeof token.email === 'string' && typeof token.authToken === 'string') {
-        session.user.id = token.id;
-        session.user.email = token.email;
-        session.user.authToken = token.authToken;
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
+        session.user.authToken = token.authToken as string;
       }
       return session;
     },
@@ -78,4 +81,6 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login",
   },
+  debug: true,
+  secret: process.env.NEXTAUTH_SECRET,
 };

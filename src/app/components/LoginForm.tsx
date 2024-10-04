@@ -27,17 +27,23 @@ export default function LoginForm() {
     setError("");
 
     try {
+      console.log("Attempting to sign in");
       const res = await signIn("credentials", {
         redirect: false,
         email,
         password,
       });
 
+      console.log("Sign in response:", res);
+
       if (res?.error) {
-        setError("Invalid email or password");
+        setError(res.error);
         setIsSubmitting(false);
-      } else {
+      } else if (res?.ok) {
         router.push("/candidate");
+      } else {
+        setError("An unexpected error occurred");
+        setIsSubmitting(false);
       }
     } catch (err) {
       console.error("Login error:", err);
