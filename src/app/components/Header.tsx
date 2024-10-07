@@ -2,6 +2,7 @@ import { Search, Sun, Moon, Bell, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useTheme } from "next-themes"
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -14,8 +15,15 @@ export default function Header() {
     <header className="border-b">
       <div className="container mx-auto px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 bg-purple-600 rounded-full"></div>
-          <nav>
+        <Avatar className="flex-shrink-0 w-12 h-12 rounded-full">
+              <AvatarImage 
+                src={"../../images/Logo-04.svg"}
+                alt={`Company Logo`}
+                className="rounded-full"
+              />
+              <AvatarFallback className="rounded-full">F</AvatarFallback>
+            </Avatar>
+          <nav className="flex items-center space-x-4">
             <Button variant="ghost">Start</Button>
             <Button variant="secondary">Jobs</Button>
           </nav>
