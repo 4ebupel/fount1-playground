@@ -31,8 +31,6 @@ export default function CandidateCard({ candidate, isSelected, onClick }: Candid
     percentage: Number(((item.value / totalValue) * 100).toFixed(0))
   }))
 
-  console.log(pieChartData);
-
   return (
     <div className="relative">
       <Card 
