@@ -10,6 +10,7 @@ import { getCandidates } from '../api/getCandidates'
 import { User } from '../types/User'
 import Loader from './Loader'
 import { useSearchParams } from 'next/navigation'
+import { Button } from '@/components/ui/button'
 
 export default function CandidateManagement() {
   const [isFilterBarOpen, setIsFilterBarOpen] = useState(true);
@@ -100,10 +101,17 @@ export default function CandidateManagement() {
       <main className="flex-1 container mx-auto px-4 py-8 flex gap-6 overflow-hidden">
         <FilterBar isOpen={isFilterBarOpen} setIsOpen={setIsFilterBarOpen} filters={filters} setFilters={setFilters} />
         <div className="flex-1 flex gap-6">
-          <ScrollArea className="flex-1 overflow-visible">
-            {isLoading || !users.length ? (
+          <ScrollArea className="flex-1 overflow-hidden">
+            {isLoading && (
               <Loader />
-            ) : (
+            )}
+            {users.length <= 0 && (
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <p>No candidates found for your search</p>
+                <p className="text-muted-foreground">Try to clear some filters or remove the search query</p>
+              </div>
+            )}
+            {users.length > 0 && !isLoading && (
               <CandidateList 
                 candidates={users} 
                 selectedCandidate={selectedCandidate} 
