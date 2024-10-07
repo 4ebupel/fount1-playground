@@ -38,7 +38,7 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [availableInDays, setAvailableInDays] = useState<number | undefined>(undefined);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     setLocalFilters(filters);
 
@@ -92,12 +92,14 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
   const debouncedQuerySkills = useCallback(
     debounce(async (query: string) => {
       if (query) {
+        setIsLoading(true);
         const skills = await querySkills(query.toLowerCase(), localFilters.skills);
         const skillSuggestions = skills.filter(skill => !localFilters.skills.includes(skill.skill_title));
         setSuggestions(skillSuggestions);
       } else {
         setSuggestions([]);
       }
+      setIsLoading(false);
     }, 300),
     [localFilters.skills]
   );
@@ -138,12 +140,15 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
             {/* Search Skills */}
             <div>
               <label className="text-sm font-medium">Search Skills</label>
-              <Input
-                placeholder="Search skills"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="mt-1"
-              />
+              <div className="flex flex-row items-center justify-between gap-2">
+                <Input
+                  placeholder="Search skills"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="mt-1"
+                />
+                {isLoading && <div className="animate-spin rounded-full border-4 border-primary border-t-transparent h-6 w-7" />}
+              </div>
               {suggestions.length > 0 && (
                 <div className="absolute z-10 w-full border border-gray-300 mt-1 rounded-md shadow-lg bg-white">
                   {suggestions.map(suggestion => (
