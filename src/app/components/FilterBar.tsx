@@ -4,11 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import { DualRangeSlider } from "@/components/dualRangeSlider";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useCallback, useEffect } from "react";
 import { debounce } from "@/lib/utils";
 import { querySkills } from "@/app/api/querySkills";
@@ -32,8 +31,7 @@ interface FilterBarProps {
 
 export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: FilterBarProps) {
   const router = useRouter();
-
-  // Local state for managing filter inputs
+  const pathname = usePathname();
   const [localFilters, setLocalFilters] = useState(filters);
   const [searchTerm, setSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState<SkillStandardized[]>([]);
@@ -79,7 +77,7 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
     if (localFilters.maxSalary) searchParams.set('maxSalary', localFilters.maxSalary.toString());
     if (localFilters.availableIn !== undefined) searchParams.set('availableIn', localFilters.availableIn.toString());
 
-    router.push(`/?${searchParams.toString()}`);
+    router.push(`${pathname}?${searchParams.toString()}`);
 
     // Clear suggestions after applying filters
     setSuggestions([]);
