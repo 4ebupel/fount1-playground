@@ -11,7 +11,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useState, useCallback, useEffect } from "react";
 import { debounce } from "@/lib/utils";
 import { querySkills } from "@/app/api/querySkills";
-import { SkillStandardized } from "../types/SkillsCombined";
+import { SkillStandardized } from "../types/SkillsStandardized";
 import { format, isSameDay, startOfDay } from "date-fns";
 
 interface FilterBarProps {
@@ -148,7 +148,7 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
                 <div className="absolute z-10 w-full border border-gray-300 mt-1 rounded-md shadow-lg bg-white">
                   {suggestions.map(suggestion => (
                     <div
-                      key={suggestion.skill_title}
+                      key={suggestion.skill_id}
                       className="p-2 cursor-pointer hover:bg-gray-200"
                       onClick={() => handleSuggestionClick(suggestion.skill_title)}
                     >
