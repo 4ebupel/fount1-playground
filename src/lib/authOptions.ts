@@ -1,6 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { XanoClient, XanoNodeClient } from "@xano/js-sdk";
+import { XanoNodeClient } from "@xano/js-sdk";
 
 export const authOptions: NextAuthOptions = {
   providers: [
