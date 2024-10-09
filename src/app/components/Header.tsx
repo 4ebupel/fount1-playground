@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useTheme } from "next-themes"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import LogoMenu from "./LogoMenu";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -45,9 +46,7 @@ export default function Header() {
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
+          <LogoMenu />
         </div>
       </div>
     </header>

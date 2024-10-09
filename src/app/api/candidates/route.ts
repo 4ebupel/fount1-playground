@@ -7,15 +7,12 @@ export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    if (!session || !session.user?.authToken) {
+      // Redirect to login page
+      return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    const authToken = session.user?.authToken;
-
-    if (!authToken) {
-      return NextResponse.json({ error: 'No authentication token available' }, { status: 401 });
-    }
+    const authToken = session.user.authToken;
 
     const { searchParams } = new URL(request.url);
     const queryString = searchParams.toString();
