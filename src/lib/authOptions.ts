@@ -1,6 +1,15 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { XanoNodeClient } from "@xano/js-sdk";
+import { JWT } from "next-auth/jwt";
+import { Session } from "next-auth";
+
+declare module "next-auth" {
+  interface Session {
+    accessToken?: string;
+    error?: string;
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -28,30 +37,28 @@ export const authOptions: NextAuthOptions = {
             password: credentials.password,
           });
       
-          const userAuthToken = response.getBody()?.authToken;
-      
-          if (userAuthToken) {
-            // Set the auth token for subsequent requests
-            xano.setAuthToken(userAuthToken);
-      
-            let user;
-            try {
-              const meResponse = await xano.get("/auth/me");
-              user = meResponse.getBody();
-            } catch (error) {
-              console.error("Error fetching user details:", error);
-              return null;
-            }
-      
-            console.log("User returned from Xano:", user);
-      
+          const responseBody = response.getBody();
+
+          const accessToken = responseBody?.access_token;
+          const refreshToken = responseBody?.refresh_token;
+          const expiresIn = responseBody?.expires_in; // in seconds
+          const user = responseBody?.user;
+
+          console.log(`expiresIn received from Xano: ${expiresIn}`);
+
+          if (accessToken && refreshToken && user) {
+            // Calculate token expiration time
+            const accessTokenExpires = Date.now() + expiresIn * 1000;
+
             return {
               id: user.id.toString(),
               email: user.email,
-              authToken: userAuthToken,
+              accessToken,
+              refreshToken,
+              accessTokenExpires,
             };
           } else {
-            console.log("No user returned from Xano");
+            console.log("Login failed, no tokens returned from Xano");
             return null;
           }
         } catch (error) {
@@ -63,19 +70,37 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
+      // Initial sign-in
       if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.authToken = user.authToken;
+        return {
+          ...token,
+          id: user.id,
+          email: user.email,
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          accessTokenExpires: user.accessTokenExpires,
+        };
       }
-      return token;
+  
+      // Return previous token if the access token has not expired
+      if (Date.now() < token.accessTokenExpires) {
+        const secondsUntilExpiration = (token.accessTokenExpires - Date.now()) / 1000;
+        console.log(`Access token will expire in ${secondsUntilExpiration} seconds`);
+        return token;
+      }
+  
+      // Access token has expired, try to refresh it
+      console.log("Access token has expired, refreshing...");
+      return await refreshAccessToken(token);
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
         session.user.email = token.email;
-        session.user.authToken = token.authToken;
       }
+      session.accessToken = token.accessToken;
+      session.error = token.error;
+
       return session;
     },
   },
@@ -84,8 +109,56 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 86400,
+    maxAge: 24 * 60 * 60,
+    updateAge: 24 * 60 * 60,
   },
   debug: true,
   secret: process.env.NEXTAUTH_SECRET,
 };
+
+async function refreshAccessToken(token: JWT) {
+  try {
+    const xano = new XanoNodeClient({
+      apiGroupBaseUrl: process.env.XANO_API_GROUP_BASE_URL,
+    });   
+
+    const response = await xano.post("/auth/refresh", {
+      refresh_token: token.refreshToken,
+    });
+
+    const responseBody = response.getBody();
+
+    const accessToken = responseBody?.access_token;
+    const refreshToken = responseBody?.refresh_token;
+    const expiresIn = responseBody?.expires_in; // in seconds
+
+    if (!accessToken || !refreshToken) {
+      throw new Error("Failed to refresh access token");
+    }
+
+    const accessTokenExpires = Date.now() + expiresIn * 1000;
+
+    return {
+      ...token,
+      accessToken,
+      refreshToken,
+      accessTokenExpires,
+    };
+  } catch (error: any) {
+    if (error.response) {
+      // Server responded with a status code outside the 2xx range
+      console.error("Error response from Xano:", error.response.data);
+    } else if (error.request) {
+      // No response received
+      console.error("No response received when refreshing access token:", error.request);
+    } else {
+      // Error setting up the request
+      console.error("Error setting up refresh token request:", error.message);
+    }
+  
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    };
+  }
+}
