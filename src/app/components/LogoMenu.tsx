@@ -13,8 +13,24 @@ export default function LogoMenu() {
   const router = useRouter()
 
   const handleLogout = async () => {
-    await signOut({ redirect: false })
-    router.push("/login")
+    try {
+      // Call the API route to invalidate the refresh token
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+      });
+  
+      if (!response.ok) {
+        console.error('Failed to invalidate refresh token');
+        // Handle the error (e.g., show a notification)
+      }
+  
+      // Proceed to sign out
+      await signOut({ redirect: false });
+      router.push('/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Handle the error (e.g., show a notification)
+    }
   }
 
   return (

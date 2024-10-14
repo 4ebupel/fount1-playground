@@ -11,7 +11,7 @@ export async function getCandidates(queryString: string): Promise<User[]> {
     const users = await response.json();
     return users;
   } catch (error) {
-    console.error('Error fetching candidates:', error);
+    console.error('Error fetching candidates (getCandidates):', error);
     return [];
   }
 }
