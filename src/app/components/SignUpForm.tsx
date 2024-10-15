@@ -49,10 +49,10 @@ export default function SignUpForm() {
     setError("");
 
     try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
+      const res = await fetch('/api/signup', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
       });
