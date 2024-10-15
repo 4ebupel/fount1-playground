@@ -43,7 +43,7 @@ export default function CandidateCard({ candidate, isSelected, onClick }: Candid
             <div className="flex items-center mb-2">
               <div className="w-12 h-12 rounded-full overflow-hidden mr-4 flex-shrink-0">
                 <img
-                  src={candidate.profile_picture.url}
+                  src={candidate.profile_picture?.url ? candidate.profile_picture.url : ''}
                   alt={`Candidate ${candidate.id}`}
                   className="w-full h-full object-cover"
                 />

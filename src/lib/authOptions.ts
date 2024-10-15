@@ -39,6 +39,13 @@ export const authOptions: NextAuthOptions = {
       
           const responseBody = response.getBody();
 
+          const isVerified = responseBody?.user?.is_verified;
+
+          if (!isVerified) {
+            // User is not verified
+            throw new Error('Please verify your email before logging in');
+          }
+
           const accessToken = responseBody?.access_token;
           const refreshToken = responseBody?.refresh_token;
           const expiresIn = responseBody?.expires_in; // in seconds
@@ -56,6 +63,7 @@ export const authOptions: NextAuthOptions = {
               accessToken,
               refreshToken,
               accessTokenExpires,
+              isVerified,
             };
           } else {
             console.log("Login failed, no tokens returned from Xano");
@@ -79,6 +87,7 @@ export const authOptions: NextAuthOptions = {
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
           accessTokenExpires: user.accessTokenExpires,
+          isVerified: user.isVerified,
         };
       }
   
@@ -97,6 +106,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id;
         session.user.email = token.email;
+        session.user.isVerified = token.isVerified;
       }
       session.accessToken = token.accessToken;
       session.error = token.error;

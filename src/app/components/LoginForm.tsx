@@ -99,6 +99,11 @@ export default function LoginForm() {
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Logging in..." : "Log In"}
           </Button>
+          <div className="mt-4 text-center">
+            <a href="/signup" className="text-blue-500 hover:underline">
+              Don't have an account? Sign Up
+            </a>
+          </div>
         </form>
       </CardContent>
     </Card>
