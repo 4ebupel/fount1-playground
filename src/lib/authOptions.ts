@@ -1,8 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { XanoNodeClient } from "@xano/js-sdk";
+import { XanoNodeClient, XanoRequestError } from "@xano/js-sdk";
 import { JWT } from "next-auth/jwt";
-import { Session } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
@@ -43,7 +42,7 @@ export const authOptions: NextAuthOptions = {
 
           if (!isVerified) {
             // User is not verified
-            throw new Error('Please verify your email before logging in');
+            throw new Error('Please verify your email before logging in', { cause: 'EmailNotVerified' });
           }
 
           const accessToken = responseBody?.access_token;
@@ -69,9 +68,15 @@ export const authOptions: NextAuthOptions = {
             console.log("Login failed, no tokens returned from Xano");
             return null;
           }
-        } catch (error) {
-          console.error("Xano login error:", error);
-          return null;
+        } catch (error: any) {
+          // This whole circus is because Xano uses its own error object (XanoRequestError), 
+          // which is different from the standard NextAuth error object 
+          // and for some reason I wasn't able to get the "instanceof" check to work.
+          const isXanoError = Boolean(error?.getResponse?.());
+          console.log("isXanoError:", isXanoError);
+          console.error("Xano login error:", isXanoError ? error.getResponse().getBody()?.message + " " + error.getResponse().getBody()?.payload : error);
+          // Pass the error message through
+          throw new Error(isXanoError ? error.getResponse().getBody()?.message + " " + error.getResponse().getBody()?.payload : error.message || "An unexpected error occurred");
         }
       }
     })

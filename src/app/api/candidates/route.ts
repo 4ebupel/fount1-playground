@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching candidates:', error);
 
+    // Do not look at this.
     if (
       error &&
       typeof error === 'object' &&
@@ -35,6 +36,7 @@ export async function GET(request: NextRequest) {
       error.response.status === 401
     ) {
       // Handle unauthorized access
+      console.log("Unauthorized access detected. Redirecting to login.");
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
