@@ -10,7 +10,6 @@ import { getCandidates } from '../api/getCandidates'
 import { User } from '../types/User'
 import Loader from './Loader'
 import { useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
 
 export default function CandidateManagement() {
   const [isFilterBarOpen, setIsFilterBarOpen] = useState(true);

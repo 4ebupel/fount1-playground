@@ -34,7 +34,7 @@ export default function LoginForm() {
         password,
       });
 
-      console.log("data sent: ", email, "password length: ", password.length.toString())
+      console.log("data sent: ", email.slice(0, 5) + "...", password.length.toString())
   
       if (!res) {
         throw new Error("Sign-in request failed");
@@ -43,11 +43,8 @@ export default function LoginForm() {
       console.log("Sign in response: ", res);
   
       if (res.error) {
-        if (res.error === "CredentialsSignin") {
-          setError("Invalid email or password");
-        } else {
-          setError(res.error);
-        }
+        // The error message from the server will be in res.error
+        setError(res.error);
       } else if (res.ok) {
         router.push("/candidate");
       } else {

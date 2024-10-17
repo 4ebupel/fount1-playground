@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
       password,
       verification_token: verificationToken,
       is_verified: false,
+      role: 'employer',
     });
 
     const responseBody = response.getBody();
@@ -55,8 +56,10 @@ export async function POST(request: NextRequest) {
     await transporter.sendMail(mailOptions);
 
     return NextResponse.json({ message: 'Signup successful. Verification email sent.' }, { status: 200 });
-  } catch (error) {
-    console.error('Signup error:', error);
-    return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
+  } catch (error: any) {
+    const isXanoError = Boolean(error?.getResponse?.());
+    console.log("isXanoError:", isXanoError);
+    console.error('Signup error:', isXanoError ? error.getResponse().getBody()?.message + " " + error.getResponse().getBody()?.payload : error);
+    return NextResponse.json({ error: isXanoError ? error.getResponse().getBody()?.message + " " + error.getResponse().getBody()?.payload : error.message || "An unexpected error occurred" }, { status: 500 });
   }
 }

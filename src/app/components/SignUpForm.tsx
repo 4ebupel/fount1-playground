@@ -1,13 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from 'next/navigation';
 import { CheckCircle2, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { signIn } from "next-auth/react"
+import { GenericDialog } from "./GenericDialog"
 
 type PasswordRequirement = {
   regex: RegExp
@@ -27,7 +26,7 @@ export default function SignUpForm() {
   const [password, setPassword] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
-  const router = useRouter();
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const checkPasswordStrength = (password: string) => {
     return passwordRequirements.map(requirement => ({
@@ -47,7 +46,7 @@ export default function SignUpForm() {
 
     setIsSubmitting(true);
     setError("");
-
+    
     try {
       const res = await fetch('/api/signup', {
         method: 'POST',
@@ -56,29 +55,16 @@ export default function SignUpForm() {
         },
         body: JSON.stringify({ email, password }),
       });
-
       if (res.ok) {
-        // Automatically log in the user after successful signup
-        const result = await signIn("credentials", {
-          redirect: false,
-          email,
-          password,
-        });
-
-        if (result?.error) {
-          setError(result.error);
-          setIsSubmitting(false);
-        } else {
-          router.push("/candidate");
-        }
+        setIsDialogOpen(true);
       } else {
         const data = await res.json();
         setError(data.error || "Signup failed");
-        setIsSubmitting(false);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Signup error:", err);
-      setError("An unexpected error occurred");
+      setError(err.message || "An unexpected error occurred");
+    } finally {
       setIsSubmitting(false);
     }
   }
@@ -134,7 +120,18 @@ export default function SignUpForm() {
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Signing up..." : "Sign Up"}
           </Button>
+          <div className="mt-4 text-center">
+            <a href="/login" className="text-blue-500 hover:underline">
+              Already have an account? Log In
+            </a>
+          </div>
         </form>
+        <GenericDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          title="Signup Successful (probably)"
+          content="Please check your email for verification!"
+        />
       </CardContent>
     </Card>
   )
