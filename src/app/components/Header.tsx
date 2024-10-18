@@ -1,16 +1,16 @@
 import { Search, Sun, Moon, Bell, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useTheme } from "next-themes"
+// import { useTheme } from "next-themes"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import LogoMenu from "./LogoMenu";
 
 export default function Header() {
-  const { theme, setTheme } = useTheme();
+  // const { theme, setTheme } = useTheme();
 
-  const handleThemeToggle = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
+  // const handleThemeToggle = () => {
+  //   setTheme(theme === "light" ? "dark" : "light");
+  // };
 
   return (
     <header className="border-b">
@@ -36,12 +36,12 @@ export default function Header() {
           </div>
         </div>
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" onClick={handleThemeToggle}>
-            {theme === "dark" ? (
+          <Button variant="ghost" size="icon">
+            {/* {theme === "dark" ? (
               <Sun className="h-5 w-5" />
             ) : (
               <Moon className="h-5 w-5" />
-            )}
+            )} */}
           </Button>
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5" />
