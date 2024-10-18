@@ -46,7 +46,7 @@ export default function LoginForm() {
         // The error message from the server will be in res.error
         setError(res.error);
       } else if (res.ok) {
-        router.push("/candidate");
+        router.push("/dashboard");
       } else {
         setError("An unexpected error occurred");
       }

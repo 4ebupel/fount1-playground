@@ -1,9 +1,12 @@
+"use client"
+
 import { Search, Sun, Moon, Bell, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 // import { useTheme } from "next-themes"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import LogoMenu from "./LogoMenu";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   // const { theme, setTheme } = useTheme();
@@ -11,6 +14,8 @@ export default function Header() {
   // const handleThemeToggle = () => {
   //   setTheme(theme === "light" ? "dark" : "light");
   // };
+
+  const router = useRouter()
 
   return (
     <header className="border-b">
@@ -25,8 +30,8 @@ export default function Header() {
               <AvatarFallback className="rounded-full">F</AvatarFallback>
             </Avatar>
           <nav className="flex items-center space-x-4">
-            <Button variant="ghost">Start</Button>
-            <Button variant="secondary">Jobs</Button>
+            <Button variant="ghost" onClick={() => router.push("/dashboard")}>Start</Button>
+            <Button variant="ghost" onClick={() => router.push("/candidates")}>Candidates</Button>
           </nav>
         </div>
         <div className="flex-1 max-w-xl mx-4">

@@ -14,7 +14,7 @@ export default function Home() {
     if (status === "unauthenticated") {
       router.push("/login")
     } else if (status === "authenticated") {
-      router.push("/candidate")
+      router.push("/dashboard")
     }
   }, [status, router])
 
