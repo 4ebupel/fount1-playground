@@ -55,7 +55,7 @@ export default function LogoMenu() {
           </DropdownMenuItem>
           <DropdownMenuItem>
             <HelpCircle className="mr-2 h-4 w-4" />
-            <span>Help & Support</span>
+            <span onClick={() => router.push('/support')}>Help & Support</span>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
