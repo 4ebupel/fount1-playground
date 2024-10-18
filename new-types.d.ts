@@ -9,6 +9,7 @@ declare module "next-auth" {
     refreshToken: string;
     accessTokenExpires: number;
     isVerified: boolean;
+    profile_picture_url: string;
   }
 
   interface Session {
@@ -25,5 +26,6 @@ declare module "next-auth/jwt" {
     accessTokenExpires: number;
     error: string;
     isVerified: boolean;
+    profile_picture_url: string;
   }
 }
