@@ -147,7 +147,7 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
         </div>
         <div className="mb-4">
           <h3 className="text-lg font-semibold">Previous Jobs:</h3>
-          <div className="space-y-4">
+          <div className={`space-y-4 ${selectedCandidate.experiences.length > 3 ? "max-h-[200px] overflow-y-auto" : ""}`}>
             {selectedCandidate.experiences.length > 0 ? (
               selectedCandidate.experiences.slice(0, 3).map((experience, index) => (
                 <div 

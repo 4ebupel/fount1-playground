@@ -18,17 +18,17 @@ export default function Header() {
   const router = useRouter()
 
   return (
-    <header className="border-b">
-      <div className="container mx-auto px-4 py-2 flex items-center justify-between">
+    <header className="border-b sticky top-0 z-50 bg-white">
+      <div className=" mx-auto px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-        <Avatar className="flex-shrink-0 w-12 h-12 rounded-full">
+          <Avatar className="flex-shrink-0 w-32 h-12">
               <AvatarImage 
-                src={"../../images/Logo-04.svg"}
+                src={"/images/LogoWithTextTransparentBG.svg"}
                 alt={`Company Logo`}
                 className="rounded-full"
               />
-              <AvatarFallback className="rounded-full">F</AvatarFallback>
-            </Avatar>
+            <AvatarFallback className="rounded-full">F</AvatarFallback>
+          </Avatar>
           <nav className="flex items-center space-x-4">
             <Button variant="ghost" onClick={() => router.push("/dashboard")}>Start</Button>
             <Button variant="ghost" onClick={() => router.push("/candidates")}>Candidates</Button>

@@ -95,8 +95,8 @@ export default function CandidateManagement() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
-      <main className="flex-1 container mx-auto px-4 py-8 flex gap-6 overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden">
+      <main className="flex-1 container mx-auto px-4 py-8 flex gap-6 overflow-y-auto">
         <FilterBar isOpen={isFilterBarOpen} setIsOpen={setIsFilterBarOpen} filters={filters} setFilters={setFilters} />
         <div className="flex-1 flex gap-6">
           <ScrollArea className="flex-1 overflow-hidden">

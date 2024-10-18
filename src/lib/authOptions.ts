@@ -63,6 +63,7 @@ export const authOptions: NextAuthOptions = {
               refreshToken,
               accessTokenExpires,
               isVerified,
+              profile_picture_url: user.profile_picture_url,
             };
           } else {
             console.log("Login failed, no tokens returned from Xano");
@@ -93,6 +94,7 @@ export const authOptions: NextAuthOptions = {
           refreshToken: user.refreshToken,
           accessTokenExpires: user.accessTokenExpires,
           isVerified: user.isVerified,
+          profile_picture_url: user.profile_picture_url,
         };
       }
   
@@ -112,6 +114,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id;
         session.user.email = token.email;
         session.user.isVerified = token.isVerified;
+        session.user.profile_picture_url = token.profile_picture_url;
       }
       session.accessToken = token.accessToken;
       session.error = token.error;
