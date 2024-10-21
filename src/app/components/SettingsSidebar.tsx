@@ -10,7 +10,7 @@ export default function SettingsSidebar({ activeSection, setActiveSection }: Sid
   return (
     <div className="w-64 bg-white shadow-sm h-full">
       <div className="p-4 border-b flex items-center space-x-2">
-        <div className="w-8 h-8 bg-purple-600 rounded-md"></div>
+        <div className="w-8 h-8 bg-purple-600 rounded-md" />
         <h2 className="text-xl font-semibold">fount.one</h2>
       </div>
       <nav className="p-4">
