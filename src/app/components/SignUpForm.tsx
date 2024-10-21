@@ -56,7 +56,7 @@ export default function SignUpForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, firstName, lastName }),
       });
       if (res.ok) {
         setIsDialogOpen(true);
