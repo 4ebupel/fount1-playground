@@ -13,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <link rel="icon" href="/images/Logo-04.svg" type="image/png"></link>
+      <link rel="icon" href="/images/Logo-04.svg" type="image/png" />
       <title>Fount.one</title>
       <body className={inter.className}>
         <SessionProvider>{children}</SessionProvider>
