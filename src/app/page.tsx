@@ -6,11 +6,11 @@ import { useEffect } from "react"
 import Loader from "./components/Loader"
 
 export default function Home() {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
 
   useEffect(() => {
-    if (status === "loading") return
+    if (status === "loading") {return}
     if (status === "unauthenticated") {
       router.push("/login")
     } else if (status === "authenticated") {
@@ -18,7 +18,7 @@ export default function Home() {
     }
   }, [status, router])
 
-  if (status === "loading") return <div><Loader /></div>
+  if (status === "loading") {return <div><Loader /></div>}
 
   return null
 }

@@ -8,13 +8,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, HelpCircle, Settings, Building2, CircleUser } from "lucide-react"
+import { LogOut, HelpCircle, Settings, Building2 } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
 export default function LogoMenu() {
   const router = useRouter()
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const profile_picture_url = session?.user?.profile_picture_url;
   console.log(profile_picture_url, session);
 
@@ -52,21 +52,27 @@ export default function LogoMenu() {
                 alt={`Profile Picture`}
                 className="rounded-full"
               />
-            <AvatarFallback className="rounded-full">{session?.user?.email?.charAt(0)}</AvatarFallback>
-          </Avatar>
+              <AvatarFallback className="rounded-full">{session?.user?.email?.charAt(0)}</AvatarFallback>
+            </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuItem>
             <Settings className="mr-2 h-4 w-4" />
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, 
+            jsx-a11y/no-static-element-interactions */}
             <span onClick={() => router.push('/settings')}>Personal Settings</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Building2 className="mr-2 h-4 w-4" />
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, 
+            jsx-a11y/no-static-element-interactions */}
             <span onClick={() => router.push('/settings')}>Company Settings</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <HelpCircle className="mr-2 h-4 w-4" />
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, 
+            jsx-a11y/no-static-element-interactions */}
             <span onClick={() => router.push('/support')}>Help & Support</span>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={handleLogout}>

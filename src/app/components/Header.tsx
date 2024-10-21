@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, Sun, Moon, Bell, User } from "lucide-react"
+import { Search, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 // import { useTheme } from "next-themes"
@@ -22,11 +22,11 @@ export default function Header() {
       <div className=" mx-auto px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Avatar className="flex-shrink-0 w-32 h-12">
-              <AvatarImage 
-                src={"/images/LogoWithTextTransparentBG.svg"}
-                alt={`Company Logo`}
-                className="rounded-full"
-              />
+            <AvatarImage 
+              src={"/images/LogoWithTextTransparentBG.svg"}
+              alt={`Company Logo`}
+              className="rounded-full"
+            />
             <AvatarFallback className="rounded-full">F</AvatarFallback>
           </Avatar>
           <nav className="flex items-center space-x-4">

@@ -30,14 +30,18 @@ export default function JobCard({ job, skillIcons, priorityColors }: JobCardProp
       <CardContent className="p-4">
         <div className="flex items-center text-sm text-muted-foreground mb-2">
           <Calendar className="mr-2 h-4 w-4" />
-          <span className="font-semibold mr-2">Published:</span> {job.publishDate}
+          <span className="font-semibold mr-2">Published:</span> 
+          {' '}
+          {job.publishDate}
         </div>
         <div className="flex items-center text-sm text-muted-foreground mb-4">
           <Users className="mr-2 h-4 w-4" />
-          <span className="font-semibold mr-2">Applicants:</span> {job.applicants}
+          <span className="font-semibold mr-2">Applicants:</span> 
+          {' '}
+          {job.applicants}
         </div>
         <div className="flex flex-wrap gap-2 mb-4">
-            {/* @ts-ignore */}
+          {/* @ts-expect-error  implicit any */}
           {job.requirements.map((req, index) => (
             <Badge
               key={index}
@@ -69,7 +73,7 @@ export default function JobCard({ job, skillIcons, priorityColors }: JobCardProp
             <div className="grid gap-4 py-4">
               <p>{job.description}</p>
               <div className="flex flex-wrap gap-2">
-                {/* @ts-ignore */}
+                {/* @ts-expect-error  implicit any */}
                 {job.requirements.map((req, index) => (
                   <Badge
                     key={index}

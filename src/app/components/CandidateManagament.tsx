@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Header from './Header'
 import FilterBar from './FilterBar'
 import CandidateList from './CandidateList'
 import CandidateDetails from './CandidateDetails'
@@ -34,7 +33,7 @@ export default function CandidateManagement() {
     availableIn: undefined,
   });
   const searchParams = useSearchParams();
-  
+
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const newFilters = {
@@ -48,6 +47,29 @@ export default function CandidateManagement() {
     };
     setFilters(newFilters);
 
+    async function fetchUsers(currentFilters: {
+      skills: string[];
+      experienceLevel: string[];
+      minRating: number;
+      location: string;
+      minSalary: number;
+      maxSalary: number;
+      availableIn: number | undefined;
+    }): Promise<User[]> {
+      const queryParams = new URLSearchParams();
+
+      if (currentFilters.skills.length) { queryParams.set('skills', currentFilters.skills.join(',')); }
+      if (currentFilters.experienceLevel.length) { queryParams.set('experienceLevel', currentFilters.experienceLevel.join(',')); }
+      if (currentFilters.minRating) { queryParams.set('minRating', currentFilters.minRating.toString()); }
+      if (currentFilters.location) { queryParams.set('location', currentFilters.location); }
+      if (currentFilters.minSalary) { queryParams.set('minSalary', currentFilters.minSalary.toString()); }
+      if (currentFilters.maxSalary) { queryParams.set('maxSalary', currentFilters.maxSalary.toString()); }
+      if (currentFilters.availableIn !== undefined) { queryParams.set('availableIn', currentFilters.availableIn.toString()); }
+
+      const fetchedUsers = await getCandidates(queryParams.toString());
+      return fetchedUsers;
+    }
+
     setIsLoading(true);
     fetchUsers(newFilters)
       .then((users) => {
@@ -60,31 +82,6 @@ export default function CandidateManagement() {
         setIsLoading(false);
       });
   }, [searchParams]);
-
-  async function fetchUsers(currentFilters: {
-    skills: string[];
-    experienceLevel: string[];
-    minRating: number;
-    location: string;
-    minSalary: number;
-    maxSalary: number;
-    availableIn: number | undefined;
-  }): Promise<User[]> {
-    const queryParams = new URLSearchParams();
-
-    if (currentFilters.skills.length) queryParams.set('skills', currentFilters.skills.join(','));
-    if (currentFilters.experienceLevel.length)
-      queryParams.set('experienceLevel', currentFilters.experienceLevel.join(','));
-    if (currentFilters.minRating) queryParams.set('minRating', currentFilters.minRating.toString());
-    if (currentFilters.location) queryParams.set('location', currentFilters.location);
-    if (currentFilters.minSalary) queryParams.set('minSalary', currentFilters.minSalary.toString());
-    if (currentFilters.maxSalary) queryParams.set('maxSalary', currentFilters.maxSalary.toString());
-    if (currentFilters.availableIn !== undefined)
-      queryParams.set('availableIn', currentFilters.availableIn.toString());
-
-    const fetchedUsers = await getCandidates(queryParams.toString());
-    return fetchedUsers;
-  };
 
   const handleCandidateClick = (candidate: User) => {
     if (selectedCandidate && selectedCandidate.id === candidate.id) {
@@ -110,10 +107,10 @@ export default function CandidateManagement() {
               </div>
             )}
             {users.length > 0 && !isLoading && (
-              <CandidateList 
-                candidates={users} 
-                selectedCandidate={selectedCandidate} 
-                onCandidateClick={handleCandidateClick} 
+              <CandidateList
+                candidates={users}
+                selectedCandidate={selectedCandidate}
+                onCandidateClick={handleCandidateClick}
               />
             )}
           </ScrollArea>

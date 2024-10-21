@@ -10,7 +10,7 @@ interface CandidateListProps {
 export default function CandidateList({ candidates, selectedCandidate, onCandidateClick }: CandidateListProps) {
   return (
     <div className="space-y-4 py-2 px-8">
-      {candidates.map(candidate => (
+      {candidates.map((candidate) => (
         <CandidateCard 
           key={candidate.id}
           candidate={candidate}

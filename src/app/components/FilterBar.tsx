@@ -36,7 +36,7 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
   const [searchTerm, setSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState<SkillStandardized[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [availableInDays, setAvailableInDays] = useState<number | undefined>(undefined);
+  const [, setAvailableInDays] = useState<number | undefined>(undefined);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
@@ -70,31 +70,25 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
 
     // Update URL parameters
     const searchParams = new URLSearchParams();
-    if (localFilters.skills.length) searchParams.set('skills', localFilters.skills.join(','));
-    if (localFilters.experienceLevel.length) searchParams.set('experienceLevel', localFilters.experienceLevel.join(','));
-    if (localFilters.minRating) searchParams.set('minRating', localFilters.minRating.toString());
-    if (localFilters.minSalary) searchParams.set('minSalary', localFilters.minSalary.toString());
-    if (localFilters.maxSalary) searchParams.set('maxSalary', localFilters.maxSalary.toString());
-    if (localFilters.availableIn !== undefined) searchParams.set('availableIn', localFilters.availableIn.toString());
+    if (localFilters.skills.length) {searchParams.set('skills', localFilters.skills.join(','));}
+    if (localFilters.experienceLevel.length) {searchParams.set('experienceLevel', localFilters.experienceLevel.join(','));}
+    if (localFilters.minRating) {searchParams.set('minRating', localFilters.minRating.toString());}
+    if (localFilters.minSalary) {searchParams.set('minSalary', localFilters.minSalary.toString());}
+    if (localFilters.maxSalary) {searchParams.set('maxSalary', localFilters.maxSalary.toString());}
+    if (localFilters.availableIn !== undefined) {searchParams.set('availableIn', localFilters.availableIn.toString());}
 
     router.push(`${pathname}?${searchParams.toString()}`);
 
     // Clear suggestions after applying filters
     setSuggestions([]);
   };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    debouncedQuerySkills(value);
-  };
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedQuerySkills = useCallback(
     debounce(async (query: string) => {
       if (query) {
         setIsLoading(true);
         const skills = await querySkills(query.toLowerCase(), localFilters.skills);
-        const skillSuggestions = skills.filter(skill => !localFilters.skills.includes(skill.skill_title));
+        const skillSuggestions = skills.filter((skill) => !localFilters.skills.includes(skill.skill_title));
         setSuggestions(skillSuggestions);
       } else {
         setSuggestions([]);
@@ -104,10 +98,16 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
     [localFilters.skills]
   );
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    debouncedQuerySkills(value);
+  };
+
   const handleSuggestionClick = (skill: string) => {
     handleLocalFilterChange({
       skills: localFilters.skills.includes(skill)
-        ? localFilters.skills.filter(s => s !== skill)
+        ? localFilters.skills.filter((s) => s !== skill)
         : [...localFilters.skills, skill],
     });
     setSearchTerm('');
@@ -115,14 +115,14 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
   };
 
   const handleSkillRemove = (skill: string) => {
-    handleLocalFilterChange({ skills: localFilters.skills.filter(s => s !== skill) });
+    handleLocalFilterChange({ skills: localFilters.skills.filter((s) => s !== skill) });
   };
 
   const handleExperienceLevelChange = (level: string, checked: boolean) => {
     handleLocalFilterChange({
       experienceLevel: checked
         ? [...localFilters.experienceLevel, level]
-        : localFilters.experienceLevel.filter(l => l !== level),
+        : localFilters.experienceLevel.filter((l) => l !== level),
     });
   };
 
@@ -139,6 +139,7 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
           <div className="space-y-4 relative">
             {/* Search Skills */}
             <div>
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
               <label className="text-sm font-medium">Search Skills</label>
               <div className="flex flex-row items-center justify-between gap-2">
                 <Input
@@ -151,7 +152,8 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
               </div>
               {suggestions.length > 0 && (
                 <div className="absolute z-10 w-full border border-gray-300 mt-1 rounded-md shadow-lg bg-white">
-                  {suggestions.map(suggestion => (
+                  {suggestions.map((suggestion) => (
+                    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
                     <div
                       key={suggestion.skill_id}
                       className="p-2 cursor-pointer hover:bg-gray-200"
@@ -165,9 +167,10 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
             </div>
             {/* Selected Skills */}
             <div>
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
               <label className="text-sm font-medium">Selected Skills</label>
               <div className="flex flex-wrap gap-2 mt-1">
-                {localFilters.skills.map(skill => (
+                {localFilters.skills.map((skill) => (
                   <Badge key={skill} variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground" onClick={() => handleSkillRemove(skill)}>
                     {`${skill} x`}
                   </Badge>
@@ -176,6 +179,7 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
             </div>
             {/* Experience Level */}
             <div>
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
               <label className="text-sm font-medium">Experience Level</label>
               <div className="flex items-center space-x-2 mt-1">
                 <Checkbox
@@ -204,6 +208,7 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
             </div>
             {/* Available On */}
             <div>
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
               <label className="text-sm font-medium">Available On</label>
               <Popover
                 open={isCalendarOpen}
@@ -259,6 +264,7 @@ export default function FilterBar({ isOpen, setIsOpen, filters, setFilters }: Fi
             </div>
             {/* Salary Range */}
             <div>
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
               <label className="text-sm font-medium">Salary Range</label>
               <div className="mt-2 flex items-center space-x-2 flex-col w-full space-y-2 mb-10">
                 <div className="flex flex-row w-full justify-between">

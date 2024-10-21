@@ -57,8 +57,6 @@ export default function LoginForm() {
       setIsSubmitting(false);
     }
   };
-  
-  
 
   return (
     <Card className="w-[350px]">
@@ -98,7 +96,7 @@ export default function LoginForm() {
           </Button>
           <div className="mt-4 text-center">
             <a href="/signup" className="text-blue-500 hover:underline">
-              Don't have an account? Sign Up
+              Don&apos;t have an account? Sign Up
             </a>
           </div>
         </form>

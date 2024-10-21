@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const queryString = searchParams.toString();
 
-    const apiClient = await apiClientServer(request);
+    const apiClient = await apiClientServer();
     const apiUrl = 'https://xwmq-s7x2-c3ge.f2.xano.io/api:eNLIk4zU';
 
     const response = await apiClient.get(`${apiUrl}/user?${queryString}`);
@@ -43,5 +43,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch candidates' }, { status: 500 });
   }
 }
-
-

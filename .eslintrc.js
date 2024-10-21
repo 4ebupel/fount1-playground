@@ -25,7 +25,7 @@ module.exports = {
     'no-var': 'error',
     'eqeqeq': ['error', 'always'],
     'curly': ['error', 'all'],
-    'max-len': ['warn', { code: 100, ignoreUrls: true, ignoreStrings: true }],
+    'max-len': ['warn', { code: 120, ignoreUrls: true, ignoreStrings: true }],
     'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
     'object-curly-spacing': ['error', 'always'],
     'array-bracket-spacing': ['error', 'never'],

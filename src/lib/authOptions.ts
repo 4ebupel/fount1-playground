@@ -1,6 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { XanoNodeClient, XanoRequestError } from "@xano/js-sdk";
+import { XanoNodeClient } from "@xano/js-sdk";
 import { JWT } from "next-auth/jwt";
 
 declare module "next-auth" {
@@ -16,7 +16,7 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         console.log("authorize function invoked");
@@ -79,8 +79,8 @@ export const authOptions: NextAuthOptions = {
           // Pass the error message through
           throw new Error(isXanoError ? error.getResponse().getBody()?.message + " " + error.getResponse().getBody()?.payload : error.message || "An unexpected error occurred");
         }
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
     async jwt({ token, user }) {
@@ -107,6 +107,7 @@ export const authOptions: NextAuthOptions = {
   
       // Access token has expired, try to refresh it
       console.log("Access token has expired, refreshing...");
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       return await refreshAccessToken(token);
     },
     async session({ session, token }) {

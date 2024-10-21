@@ -63,7 +63,7 @@ export default async function DashboardPage() {
             description: "Join our backend team to build robust and scalable server-side applications...",
             status: "closed",
             priority: "normal",
-          }
+          },
       ];
       
       const skillIcons = {
@@ -80,8 +80,13 @@ export default async function DashboardPage() {
       };
   return (
     <div>
-      <Header/>
-      <Dashboard user={mockUser} jobListings={jobListings} skillIcons={skillIcons} priorityColors={priorityColors}/>
+      <Header />
+      <Dashboard 
+        user={mockUser} 
+        jobListings={jobListings} 
+        skillIcons={skillIcons} 
+        priorityColors={priorityColors} 
+      />
     </div>
   );
 }
