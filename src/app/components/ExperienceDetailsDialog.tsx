@@ -10,7 +10,7 @@ interface ExperienceDetailsDialogProps {
 }
 
 export function ExperienceDetailsDialog({ experience, isOpen, onClose }: ExperienceDetailsDialogProps) {
-  if (!experience) return null;
+  if (!experience) {return null;}
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -42,7 +42,13 @@ export function ExperienceDetailsDialog({ experience, isOpen, onClose }: Experie
           </div>
           <div className="flex items-center space-x-3 text-sm">
             <Calendar className="w-4 h-4 text-muted-foreground" />
-            <span>{experience.timeframe_start} — {experience.is_current_position ? 'today' : experience.timeframe_end}</span>
+            <span>
+              {experience.timeframe_start}
+              {' '}
+              — 
+              {' '}
+              {experience.is_current_position ? 'today' : experience.timeframe_end}
+            </span>
           </div>
           <div className="flex items-center space-x-3 text-sm">
             <Clock className="w-4 h-4 text-muted-foreground" />

@@ -17,4 +17,3 @@ export interface Experience {
         url: string;
     };
 }
-  

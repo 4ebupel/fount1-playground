@@ -24,7 +24,7 @@ import {
 import { useSession } from 'next-auth/react';
   
   export default function ProfileSettings() {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const profile_picture_url = session?.user?.profile_picture_url;
     return (
       <div className="space-y-6">
@@ -107,14 +107,17 @@ import { useSession } from 'next-auth/react';
               </div>
             </div>
             <Button variant="outline" className="w-full">
-              <LogOut className="mr-2 h-4 w-4" /> Sign out everywhere
+              <LogOut className="mr-2 h-4 w-4" />
+              {' '}
+              Sign out everywhere
             </Button>
             <Button variant="destructive" className="w-full">
-              <Trash2 className="mr-2 h-4 w-4" /> Delete my profile
+              <Trash2 className="mr-2 h-4 w-4" />
+              {' '}
+              Delete my profile
             </Button>
           </div>
         </Card>
       </div>
     );
   }
-  

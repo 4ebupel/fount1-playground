@@ -12,7 +12,7 @@ import {
   PolarGrid,
   PolarAngleAxis,
   PolarRadiusAxis,
-  Text
+  Text,
 } from "recharts";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
@@ -39,13 +39,13 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
   }
 
   const sortedSkillsTalents = selectedCandidate.talents
-    .filter(talent => talent.talent_type === 'software_skill' || talent.talent_type === 'professional_skill')
+    .filter((talent) => talent.talent_type === 'software_skill' || talent.talent_type === 'professional_skill')
     .sort((a, b) => parseInt(b.self_verified_level) - parseInt(a.self_verified_level));
 
   const radarChartData = sortedSkillsTalents
-    .map((talent, index) => ({
+    .map((talent) => ({
       name: talent.talent_title,
-      value: parseInt(talent.self_verified_level)
+      value: parseInt(talent.self_verified_level),
     }))
 
   const CustomTick = ({ x, y, payload }: any) => {
@@ -69,24 +69,28 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
     );
   };
 
-  const isLanguageTestAvailable = selectedCandidate.standardized_documents.filter(doc => doc.type === 'Languages').length > 0;
-  const isCertificatesAvailable = selectedCandidate.standardized_documents.filter(doc => doc.type === 'Certificates').length > 0;
+  const isLanguageTestAvailable = selectedCandidate.standardized_documents.filter((doc) => doc.type === 'Languages').length > 0;
+  const isCertificatesAvailable = selectedCandidate.standardized_documents.filter((doc) => doc.type === 'Certificates').length > 0;
 
   return (
     <Card className="sticky top-0">
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center mb-2">
-              <div className="w-12 h-12 rounded-full overflow-hidden mr-4 flex-shrink-0">
-                <img
-                  src={selectedCandidate?.profile_picture?.url || "../../images/emptyLogo.png"}
-                  alt={`Candidate ${selectedCandidate.id}`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h2 className="font-semibold">{selectedCandidate.name_first || "No name"} {selectedCandidate.name_last || "No last name"}</h2>
-              {/* <h2 className="font-semibold">Candidate ID: {selectedCandidate.id}</h2> */}
+          <div className="flex items-center mb-2">
+            <div className="w-12 h-12 rounded-full overflow-hidden mr-4 flex-shrink-0">
+              <img
+                src={selectedCandidate?.profile_picture?.url || "../../images/emptyLogo.png"}
+                alt={`Candidate ${selectedCandidate.id}`}
+                className="w-full h-full object-cover"
+              />
             </div>
+            <h2 className="font-semibold">
+              {selectedCandidate.name_first || "No name"} 
+              {' '}
+              {selectedCandidate.name_last || "No last name"}
+            </h2>
+            {/* <h2 className="font-semibold">Candidate ID: {selectedCandidate.id}</h2> */}
+          </div>
           <Button>Request Interview</Button>
         </div>
         <h3 className="font-semibold mb-2">Professional Summary:</h3>
@@ -97,15 +101,20 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
               <HoverCardTrigger className="flex items-center">
                 <span className="font-bold mr-1">Language test:</span>
                 <span className="mr-1">{isLanguageTestAvailable ? "Available" : "Not Available"}</span>
-                <div className={`w-3 h-3 rounded-full ${isLanguageTestAvailable ? "bg-green-500" : "bg-red-500"}`}></div>
+                <div className={`w-3 h-3 rounded-full ${isLanguageTestAvailable ? "bg-green-500" : "bg-red-500"}`} />
               </HoverCardTrigger>
               <HoverCardContent>
-              <ul className="mt-2">
-                {selectedCandidate.standardized_documents
-                  .filter(doc => doc.type === 'Languages')
+                <ul className="mt-2">
+                  {selectedCandidate.standardized_documents
+                  .filter((doc) => doc.type === 'Languages')
                   .map((doc, index) => (
                     <li key={index} className="text-sm mb-1">
-                      <span className="font-semibold">{doc.title}:</span> {doc.level || "N/A"}
+                      <span className="font-semibold">
+                        {doc.title}
+                        :
+                      </span> 
+                      {' '}
+                      {doc.level || "N/A"}
                     </li>
                     ))}
                 </ul>
@@ -115,7 +124,7 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
             <div className="flex items-center">
               <span className="font-bold mr-1">Language test:</span>
               <span className="mr-1">Not Available</span>
-              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-red-500" />
             </div>
           )}
           {isCertificatesAvailable ? (
@@ -123,12 +132,12 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
               <HoverCardTrigger className="flex items-center">
                 <span className="font-bold mr-1">Certificates:</span>
                 <span className="mr-1">{isCertificatesAvailable ? "Available" : "Not Available"}</span>
-                <div className={`w-3 h-3 rounded-full ${isCertificatesAvailable ? "bg-green-500" : "bg-red-500"}`}></div>
+                <div className={`w-3 h-3 rounded-full ${isCertificatesAvailable ? "bg-green-500" : "bg-red-500"}`} />
               </HoverCardTrigger>
-            <HoverCardContent>
-              <ul className="mt-2">
+              <HoverCardContent>
+                <ul className="mt-2">
                   {selectedCandidate.standardized_documents
-                    .filter(doc => doc.type === 'Certificates')
+                    .filter((doc) => doc.type === 'Certificates')
                     .map((doc, index) => (
                       <li key={index} className="text-sm mb-1">
                         <span className="font-semibold">{doc.title}</span>
@@ -141,7 +150,7 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
             <div className="flex items-center">
               <span className="font-bold mr-1">Certificates:</span>
               <span className="mr-1">Not Available</span>
-              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-red-500" />
             </div>
           )}
         </div>
@@ -150,6 +159,7 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
           <div className={`space-y-4 ${selectedCandidate.experiences.length > 3 ? "max-h-[200px] overflow-y-auto" : ""}`}>
             {selectedCandidate.experiences.length > 0 ? (
               selectedCandidate.experiences.slice(0, 3).map((experience, index) => (
+                // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
                 <div 
                   key={index} 
                   className="flex items-center hover:shadow-lg transition-shadow duration-200 p-2 rounded-md w-1/2 cursor-pointer"
@@ -167,55 +177,58 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
                   </Avatar>
                   <div className="ml-4 overflow-hidden">
                     <h4 className="text-md font-medium truncate">{experience.employers_name}</h4>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {experience.job_title}
-                  </p>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {experience.timeframe_start} - {experience.is_current_position ? 'Present' : experience.timeframe_end}
-                  </p>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {experience.job_title}
+                    </p>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {experience.timeframe_start}
+                      {' '}
+                      -
+                      {experience.is_current_position ? 'Present' : experience.timeframe_end}
+                    </p>
+                  </div>
                 </div>
-              </div>
             ))
             ) : (
               <p>No experiences available</p>
             )}
+          </div>
         </div>
-      </div>
         {sortedSkillsTalents.length > 0 && (
           <div>
-          <h3 className="font-semibold mb-2">Skills:</h3>
+            <h3 className="font-semibold mb-2">Skills:</h3>
             <div className="flex flex-wrap gap-2 mb-4">
-              {selectedCandidate.talents.map(talent => (
+              {selectedCandidate.talents.map((talent) => (
                 <Badge key={talent.talent_title} variant="secondary">{talent.talent_title}</Badge>
               ))}
             </div>
           </div>
         )}
-          {radarChartData.length > 0 && (
-        <div className="flex flex-col items-stretch">
-          <h3 className="font-semibold mb-2 text-left">Main Focus</h3>
+        {radarChartData.length > 0 && (
+          <div className="flex flex-col items-stretch">
+            <h3 className="font-semibold mb-2 text-left">Main Focus</h3>
             <div className="flex justify-center items-center w-full h-[400px]">
-            <RadarChart
-              cx="50%"
-              cy="50%"
-              outerRadius="80%"
-              width={400}
-              height={400}
-              data={radarChartData}
-            >
-              <PolarGrid />
-              <PolarAngleAxis dataKey="name" tick={<CustomTick />} />
-              <PolarRadiusAxis domain={[0, 7]} />
-              <Radar
-                name="User"
-                dataKey="value"
-                stroke="#8884d8"
-                fill="#8884d8"
-                fillOpacity={0.6}
-              />
-            </RadarChart>
+              <RadarChart
+                cx="50%"
+                cy="50%"
+                outerRadius="80%"
+                width={400}
+                height={400}
+                data={radarChartData}
+              >
+                <PolarGrid />
+                <PolarAngleAxis dataKey="name" tick={<CustomTick />} />
+                <PolarRadiusAxis domain={[0, 7]} />
+                <Radar
+                  name="User"
+                  dataKey="value"
+                  stroke="#8884d8"
+                  fill="#8884d8"
+                  fillOpacity={0.6}
+                />
+              </RadarChart>
+            </div>
           </div>
-        </div>
           )}        
       </CardContent>
       <ExperienceDetailsDialog

@@ -11,24 +11,24 @@ import GenericAccordion from './GenericAccordion'
 const faqItems = [
   {
     trigger: "How do I reset my password?",
-    content: "To reset your password, click on the 'Forgot Password' link on the login page. Follow the instructions sent to your email to create a new password."
+    content: "To reset your password, click on the 'Forgot Password' link on the login page. Follow the instructions sent to your email to create a new password.",
   },
   {
     trigger: "How can I update my profile information?",
-    content: "Log in to your account and navigate to the Profile Settings page. There you can update your personal details, profile picture, and privacy preferences."
+    content: "Log in to your account and navigate to the Profile Settings page. There you can update your personal details, profile picture, and privacy preferences.",
   },
   {
     trigger: "What should I do if I can't log in?",
-    content: "If you're having trouble logging in, first ensure you're using the correct email and password. If you still can't log in, try resetting your password. If issues persist, please contact our support team."
+    content: "If you're having trouble logging in, first ensure you're using the correct email and password. If you still can't log in, try resetting your password. If issues persist, please contact our support team.",
   },
   {
     trigger: "How do I cancel my subscription?",
-    content: "To cancel your subscription, go to your Account Settings and select the 'Subscription' tab. Click on 'Cancel Subscription' and follow the prompts. Please note that you'll continue to have access until the end of your current billing period."
-  }
+    content: "To cancel your subscription, go to your Account Settings and select the 'Subscription' tab. Click on 'Cancel Subscription' and follow the prompts. Please note that you'll continue to have access until the end of your current billing period.",
+  },
 ]
 
-
 export default function HelpAndSupport() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [topic, setTopic] = useState("")
 
   return (

@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions'; // Adjust the import path accordingly
-import type { NextRequest } from 'next/server';
 
-const apiClientServer = async (req: NextRequest) => {
+const apiClientServer = async () => {
   const instance = axios.create({
     baseURL: process.env.XANO_API_BASE_URL,
   });

@@ -14,21 +14,21 @@ interface CandidateCardProps {
 
 export default function CandidateCard({ candidate, isSelected, onClick }: CandidateCardProps) {
   const sortedSkillsTalents = candidate.talents //in a perfect world we should copy the array and not mutate it
-    .filter(talent => talent.talent_type === 'software_skill' || talent.talent_type === 'professional_skill')
+    .filter((talent) => talent.talent_type === 'software_skill' || talent.talent_type === 'professional_skill')
     .sort((a, b) => parseInt(b.self_verified_level) - parseInt(a.self_verified_level));
 
   const pieChartData = sortedSkillsTalents
     .slice(0, 3)
-    .map((talent, index) => ({
+    .map((talent) => ({
     name: talent.talent_title,
-    value: parseInt(talent.self_verified_level)
+    value: parseInt(talent.self_verified_level),
     }))
 
   const totalValue = pieChartData.reduce((sum, item) => sum + item.value, 0)
 
-  const pieChartDataWithPercentage = pieChartData.map(item => ({
+  const pieChartDataWithPercentage = pieChartData.map((item) => ({
     ...item,
-    percentage: Number(((item.value / totalValue) * 100).toFixed(0))
+    percentage: Number(((item.value / totalValue) * 100).toFixed(0)),
   }))
 
   return (
@@ -48,7 +48,10 @@ export default function CandidateCard({ candidate, isSelected, onClick }: Candid
                   className="w-full h-full object-cover"
                 />
               </div>
-              <h2 className="font-semibold">Candidate ID: {candidate.id}</h2>
+              <h2 className="font-semibold">
+                Candidate ID:
+                {candidate.id}
+              </h2>
             </div>
             <div className="flex items-center mb-2">
               <div className="flex items-center justify-center">
@@ -73,11 +76,21 @@ export default function CandidateCard({ candidate, isSelected, onClick }: Candid
             </div>
             <p className="text-sm mb-2">{candidate.profile_summary}</p>
             <div className="text-sm text-muted-foreground">
-              <p className="flex items-center"><MapPin className="h-4 w-4 mr-1" /> {candidate.flexibility}</p>
               <p className="flex items-center">
-                <Clock className="h-4 w-4 mr-1" /> {`Available in: ${Math.floor(candidate.availableIn / 30) ? `${Math.floor(candidate.availableIn / 30)} Month(s), ${candidate.availableIn % 30} Day(s)` : `${candidate.availableIn % 30} Day(s)`}`}
+                <MapPin className="h-4 w-4 mr-1" /> 
+                {' '}
+                {candidate.flexibility}
               </p>
-              <p className="flex items-center"><BarChart className="h-4 w-4 mr-1" /> {candidate.career_level}</p>
+              <p className="flex items-center">
+                <Clock className="h-4 w-4 mr-1" /> 
+                {' '}
+                {`Available in: ${Math.floor(candidate.availableIn / 30) ? `${Math.floor(candidate.availableIn / 30)} Month(s), ${candidate.availableIn % 30} Day(s)` : `${candidate.availableIn % 30} Day(s)`}`}
+              </p>
+              <p className="flex items-center">
+                <BarChart className="h-4 w-4 mr-1" /> 
+                {' '}
+                {candidate.career_level}
+              </p>
             </div>
           </div>
           <div className="w-24 h-24 ml-4 flex-shrink-0">

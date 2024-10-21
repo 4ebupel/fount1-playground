@@ -31,6 +31,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+// import Image from 'next/image';
 
 export default function CompanyDetails() {
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
@@ -66,17 +67,22 @@ export default function CompanyDetails() {
 
       <div className="relative">
         <div className="h-32 bg-gray-200 rounded-lg overflow-hidden">
-          <img
+          {/* <Image
             src="/images/emptyLogo.png"
             alt="Company banner"
             className="w-full h-full object-cover"
-          />
+            width={100}
+            height={100}
+          /> */}
+          <img src="/images/emptyLogo.png" alt="Company banner" className="w-full h-full object-cover" />
           <Button
             variant="secondary"
             size="sm"
             className="absolute top-2 right-2"
           >
-            <Upload className="h-4 w-4 mr-2" /> Change Banner
+            <Upload className="h-4 w-4 mr-2" />
+            {' '}
+            Change Banner
           </Button>
         </div>
         <div className="absolute -bottom-16 left-4">
@@ -96,7 +102,7 @@ export default function CompanyDetails() {
         </div>
       </div>
 
-      <div className="h-16"></div>
+      <div className="h-16" />
 
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Basic Details</h2>
@@ -165,7 +171,7 @@ export default function CompanyDetails() {
               id="company-summary"
               className="w-full mt-1 p-2 border rounded-md"
               rows={4}
-            ></textarea>
+            />
           </div>
           <div>
             <Label>Benefits</Label>
@@ -175,7 +181,7 @@ export default function CompanyDetails() {
                   <SelectValue placeholder="Select benefits" />
                 </SelectTrigger>
                 <SelectContent>
-                  {benefitOptions.filter(benefit => !selectedBenefits.includes(benefit)).map((benefit) => (
+                  {benefitOptions.filter((benefit) => !selectedBenefits.includes(benefit)).map((benefit) => (
                     <SelectItem key={benefit} value={benefit}>
                       {benefit}
                     </SelectItem>
