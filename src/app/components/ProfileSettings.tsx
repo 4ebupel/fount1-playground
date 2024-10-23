@@ -25,7 +25,7 @@ import { useSession } from 'next-auth/react';
   
   export default function ProfileSettings() {
     const { data: session } = useSession();
-    const profile_picture_url = session?.user?.profile_picture_url;
+    const profile_picture_url = session?.user?.profilePictureUrl;
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Profile Settings</h1>
