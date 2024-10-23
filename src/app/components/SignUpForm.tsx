@@ -14,11 +14,9 @@ type PasswordRequirement = {
 }
 
 const passwordRequirements: PasswordRequirement[] = [
-  { regex: /.{12,}/, text: "At least 12 characters" },
-  { regex: /[A-Z]/, text: "Include uppercase letters" },
-  { regex: /[a-z]/, text: "Include lowercase letters" },
-  { regex: /[0-9]/, text: "Include numbers" },
-  { regex: /[^A-Za-z0-9]/, text: "Include symbols" },
+  { regex: /.{8,}/, text: "Minimum 8 characters" },
+  { regex: /(?=.*[A-Z])(?=.*[a-z])/, text: "Include both upper and lowercase letters" },
+  { regex: /[0-9]|[^A-Za-z0-9]/, text: "Include numbers or symbols" },
 ]
 
 export default function SignUpForm() {
@@ -28,6 +26,7 @@ export default function SignUpForm() {
   const [error, setError] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isTermsAccepted, setIsTermsAccepted] = useState(false)
+  const [isPrivacyAccepted, setIsPrivacyAccepted] = useState(false)
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
 
@@ -49,14 +48,14 @@ export default function SignUpForm() {
 
     setIsSubmitting(true);
     setError("");
-    
+
     try {
       const res = await fetch('/api/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, firstName, lastName }),
       });
       if (res.ok) {
         setIsDialogOpen(true);
@@ -64,7 +63,7 @@ export default function SignUpForm() {
         const data = await res.json();
         setError(data.error || "Signup failed");
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Signup error:", err);
       setError(err.message || "An unexpected error occurred");
@@ -74,7 +73,7 @@ export default function SignUpForm() {
   }
 
   return (
-    <Card className="w-[350px]">
+    <Card className="w-[450px]">
       <CardHeader>
         <CardTitle>Sign Up</CardTitle>
         <CardDescription>Create your account</CardDescription>
@@ -125,6 +124,23 @@ export default function SignUpForm() {
               required
             />
           </div>
+          <div className="space-y-2">
+            <Label>Password Requirements</Label>
+            <ul className="text-sm space-y-1">
+              {checkPasswordStrength(password).map((requirement, index) => (
+                <li key={index} className={`flex items-start ${requirement.isMet ? "text-green-600" : "text-red-600"}`}>
+                  <span className="flex-shrink-0 mt-1 mr-2">
+                    {requirement.isMet ? (
+                      <CheckCircle2 className="w-4 h-4" />
+                    ) : (
+                      <XCircle className="w-4 h-4" />
+                    )}
+                  </span>
+                  <span>{requirement.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
           <div className="flex items-center justify-start text-sm">
             <Input
               id="terms"
@@ -134,32 +150,34 @@ export default function SignUpForm() {
               checked={isTermsAccepted}
               onChange={(e) => setIsTermsAccepted(e.target.checked)}
             />
-                
+
             <Label htmlFor="terms">
-              Accept 
+              I have read and agree to the
               {' '}
               {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
               <a href="#" className="text-blue-500 underline">terms and conditions</a>
             </Label>
           </div>
-          <div className="space-y-2">
-            <Label>Password Requirements</Label>
-            <ul className="text-sm space-y-1">
-              {checkPasswordStrength(password).map((requirement, index) => (
-                <li key={index} className={`flex items-center ${requirement.isMet ? "text-green-600" : "text-red-600"}`}>
-                  {requirement.isMet ? (
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                      ) : (
-                        <XCircle className="w-4 h-4 mr-2" />
-                      )}
-                  {requirement.text}
-                </li>
-                  ))}
-            </ul>
+          <div className="flex items-center justify-start text-sm">
+            <Input
+              id="privacy"
+              type="checkbox"
+              required
+              className="mr-2 h-4 w-4"
+              checked={isPrivacyAccepted}
+              onChange={(e) => setIsPrivacyAccepted(e.target.checked)}
+            />
+
+            <Label htmlFor="privacy">
+              I have read and agree to the
+              {' '}
+              {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+              <a href="#" className="text-blue-500 underline">privacy policy</a>
+            </Label>
           </div>
           {error && (
-          <p className="text-sm text-red-600 text-center">{error}</p>
-              )}
+            <p className="text-sm text-red-600 text-center">{error}</p>
+          )}
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Signing up..." : "Sign Up"}
           </Button>
