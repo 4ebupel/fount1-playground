@@ -1,4 +1,5 @@
 // types/next-auth.d.ts
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import NextAuth from "next-auth";
 
 declare module "next-auth" {
@@ -9,7 +10,8 @@ declare module "next-auth" {
     refreshToken: string;
     accessTokenExpires: number;
     isVerified: boolean;
-    profile_picture_url: string;
+    profilePictureUrl: string;
+    firstName: string;
   }
 
   interface Session {
@@ -27,5 +29,6 @@ declare module "next-auth/jwt" {
     error: string;
     isVerified: boolean;
     profile_picture_url: string;
+    first_name: string;
   }
 }

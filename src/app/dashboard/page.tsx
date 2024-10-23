@@ -14,7 +14,7 @@ export default async function DashboardPage() {
       redirect("/login");
     }
     const mockUser = {
-        name: "Sarah",
+        name: session.user.firstName,
         openJobs: 4,
         totalApplicants: 23,
       };

@@ -14,7 +14,7 @@ module.exports = {
     'react/prop-types': 'off', // We're using TypeScript for prop validation
 
     // Additional good practice rules
-    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    // 'no-console': ['warn', { allow: ['warn', 'error'] }],
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'no-use-before-define': 'off',
