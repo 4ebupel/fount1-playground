@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 
 export async function POST(request: NextRequest) {
-  const { email, password, firstName, lastName } = await request.json();
+  const { email, password, firstName, lastName, isTermsAccepted, isPrivacyAccepted } = await request.json();
 
   // Generate a verification token
   const verificationToken = crypto.randomBytes(32).toString('hex');
@@ -15,14 +15,15 @@ export async function POST(request: NextRequest) {
     });
 
     // Create user in Xano
-    const response = await xano.post('/auth/signup', {
+    const response = await xano.post('/auth/signup/employers', {
       email,
       password,
       first_name: firstName,
       last_name: lastName,
       verification_token: verificationToken,
       is_verified: false,
-      role: 'employer',
+      is_terms_accepted: isTermsAccepted,
+      is_privacy_accepted: isPrivacyAccepted,
     });
 
     const responseBody = response.getBody();
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
     // };
 
     const mailOptions = {
-      from: 'noreply@fount.one',
+      from: 'fount.one',
       to: email,
       subject: 'Please Confirm Your Email Address',
       text: `Hi ${firstName},
