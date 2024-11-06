@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { UserContextType } from "../types/UserContextType";
 import { useSession } from "next-auth/react";
 import { User } from "../types/User";
@@ -13,7 +13,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const fetchUserData = async () => {
         if (status === 'authenticated' && session?.accessToken) {
           try {
-            const response = await fetch('/auth/me', {
+            const response = await fetch('/api/me', {
               headers: {
                 'Authorization': `Bearer ${session.accessToken}`,
                 'Content-Type': 'application/json',
@@ -27,8 +27,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
               console.error('Failed to fetch user data:', response.statusText);
               // Optionally handle specific status codes
             }
-          } catch (error) {
-            console.error('Error fetching user data:', error);
+          } catch (error: any) {
+            const isXanoError = Boolean(error?.getResponse?.());
+            console.log("isXanoError:", isXanoError);
+            console.error("Xano auth/me error:", isXanoError ? error.getResponse().getBody()?.message + " " + error.getResponse().getBody()?.payload : error);
+            throw new Error(isXanoError ? error.getResponse().getBody()?.message + " " + error.getResponse().getBody()?.payload : error.message || "An unexpected error occurred");
           }
         } else {
           setUserData(null);
@@ -43,4 +46,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         {children}
       </UserContext.Provider>
     );
-  }
+  };
+
+  export const useUser = (): UserContextType => {
+    const context = useContext(UserContext);
+    if (!context) {
+      throw new Error('useUser must be used within a UserProvider');
+    }
+    return context;
+  };
