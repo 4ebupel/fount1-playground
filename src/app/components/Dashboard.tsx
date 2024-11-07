@@ -37,9 +37,9 @@ export default function StartupJobDashboard({
           },
         });
 
-        // if (!response.ok) {
-        //   throw new Error(`Error: ${response}`);
-        // }
+        if (!response.ok) {
+          throw new Error(`Error: ${response}`);
+        }
 
         const data = await response.json();
         setUserData(data);
