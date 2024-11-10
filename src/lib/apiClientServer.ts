@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/authOptions'; // Adjust the import path accordingly
+import { authOptions } from '@/lib/authOptions';
 
 const apiClientServer = async () => {
   const instance = axios.create({
-    baseURL: process.env.XANO_API_BASE_URL,
+    baseURL: process.env.XANO_API_GROUP_BASE_URL,
   });
 
   // Request interceptor to add the access token to headers

@@ -47,11 +47,13 @@
     "crypto": "^1.0.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
+    "formidable": "^3.5.2",
     "framer-motion": "^11.5.4",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.441.0",
     "next": "^14.2.14",
     "next-auth": "^4.24.8",
+    "next-connect": "^1.0.0",
     "next-themes": "^0.3.0",
     "nodemailer": "^6.9.15",
     "postcss": "^8.4.45",
@@ -70,6 +72,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/formidable": "^3.4.5",
     "@types/node": "^20",
     "@types/nodemailer": "^6.4.16",
     "@types/react": "^18",

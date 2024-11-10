@@ -21,29 +21,92 @@ import {
     TooltipProvider,
     TooltipTrigger,
   } from '@/components/ui/tooltip';
-import { useSession } from 'next-auth/react';
-  
+import { useState } from 'react';
+import { useUser } from '../contexts/UserContext';
+import updateUserContext from '@/lib/updateUserContext';
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
   export default function ProfileSettings() {
-    const { data: session } = useSession();
-    const profile_picture_url = session?.user?.profilePictureUrl;
+    const [file, setFile] = useState<File | null>(null);
+    const [error, setError] = useState<string>('');
+    const [isLoading, setIsLoading] = useState(false);
+    const { userData, setUserData } = useUser();
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setError('');
+      if (e.target.files?.[0]) {
+        setFile(e.target.files[0]);
+      }
+    };
+
+    const handleUpload = async () => {
+      if (!file) {
+        setError('Please select a file.');
+        return;
+      }
+  
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/uploadProfilePicture`, {
+          method: 'POST',
+          body: formData,
+        });
+  
+        const data = await response.json();
+  
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to upload profile picture.');
+        }
+  
+        setFile(null);
+        updateUserContext(setUserData, setIsLoading);
+      } catch (err: any) {
+        setError(err.message || 'An unexpected error occurred.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Profile Settings</h1>
   
         <div className="relative">
-          <div className="w-32 h-32 mx-auto relative">
-            <Avatar className="w-full h-full">
-              <AvatarImage src={profile_picture_url || "/images/emptyLogo.png"} alt="Profile picture" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-            <Button
-              variant="secondary"
-              size="icon"
-              className="absolute bottom-0 right-0 rounded-full"
-            >
-              <Camera className="h-4 w-4" />
-            </Button>
+          <div className="w-32 h-32 mx-auto relative rounded-full">
+            {isLoading ? (
+              <Skeleton className="w-full h-full" />
+            ) : (
+              <label htmlFor="profile-upload" className="cursor-pointer">
+                <Avatar className="w-full h-full">
+                  <AvatarImage src={file ? URL.createObjectURL(file) : userData?.employer_profile?.profile_picture?.url || "/images/emptyLogo.png"} alt="Profile picture" />
+                  <AvatarFallback>JD</AvatarFallback>
+                </Avatar>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute bottom-0 right-0 rounded-full"
+                  onClick={handleUpload}
+                >
+                  <Camera className="h-4 w-4" />
+                </Button>
+              </label>
+            )}
+            <input 
+              type="file"
+              id="profile-upload"
+              className="hidden"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
           </div>
+          {error && (
+            <p className="text-sm text-red-500 text-center mt-2">
+              {error}
+            </p>
+          )}
         </div>
   
         <Card className="p-6">
