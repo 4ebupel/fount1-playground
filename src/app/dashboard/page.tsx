@@ -13,11 +13,6 @@ export default async function DashboardPage() {
     if (!session) {
       redirect("/login");
     }
-    const mockUser = {
-        name: session.user.firstName,
-        openJobs: 4,
-        totalApplicants: 23,
-      };
       
       const jobListings = [
         {
@@ -81,8 +76,7 @@ export default async function DashboardPage() {
   return (
     <div>
       <Header />
-      <Dashboard 
-        user={mockUser} 
+      <Dashboard  
         jobListings={jobListings} 
         skillIcons={skillIcons} 
         priorityColors={priorityColors} 

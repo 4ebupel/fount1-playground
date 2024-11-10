@@ -1,4 +1,4 @@
-import { User } from '../types/User';
+import { User } from '../types/UserInitialTest';
 
 export async function getCandidates(queryString: string): Promise<User[]> {
   try {

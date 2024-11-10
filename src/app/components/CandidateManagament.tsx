@@ -6,7 +6,7 @@ import CandidateList from './CandidateList'
 import CandidateDetails from './CandidateDetails'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCandidates } from '../api/getCandidates'
-import { User } from '../types/User'
+import { User } from '../types/UserInitialTest'
 import Loader from './Loader'
 import { useSearchParams } from 'next/navigation'
 

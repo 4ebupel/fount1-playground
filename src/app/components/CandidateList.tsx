@@ -1,4 +1,4 @@
-import { User } from '../types/User';
+import { User } from '../types/UserInitialTest';
 import CandidateCard from './CandidateCard'
 
 interface CandidateListProps {

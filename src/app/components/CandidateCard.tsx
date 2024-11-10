@@ -2,7 +2,7 @@ import { MapPin, Clock, BarChart } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import CustomTooltip from './CustomTooltip'
-import { User } from "../types/User"
+import { User } from "../types/UserInitialTest"
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8']
 
