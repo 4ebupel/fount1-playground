@@ -31,42 +31,65 @@ import "react-loading-skeleton/dist/skeleton.css";
     const [error, setError] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
     const { userData, setUserData } = useUser();
+    //   if (!file) {
+    //     setError('Please select a file.');
+    //     return;
+    //   }
+  
+    //   const formData = new FormData();
+    //   formData.append('file', file);
+      
+    //   setIsLoading(true);
+    //   try {
+    //     const response = await fetch(`/api/uploadProfilePicture`, {
+    //       method: 'POST',
+    //       body: formData,
+    //     });
+  
+    //     const data = await response.json();
+  
+    //     if (!response.ok) {
+    //       throw new Error(data.message || 'Failed to upload profile picture.');
+    //     }
+  
+    //     setFile(null);
+    //     updateUserContext(setUserData, setIsLoading);
+    //   } catch (err: any) {
+    //     setError(err.message || 'An unexpected error occurred.');
+    //   } finally {
+    //     setIsLoading(false);
+    //   }
+    // };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setError('');
       if (e.target.files?.[0]) {
-        setFile(e.target.files[0]);
-      }
-    };
-
-    const handleUpload = async () => {
-      if (!file) {
-        setError('Please select a file.');
-        return;
-      }
-  
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/uploadProfilePicture`, {
-          method: 'POST',
-          body: formData,
-        });
-  
-        const data = await response.json();
-  
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to upload profile picture.');
+        const selectedFile = e.target.files[0];
+        setFile(selectedFile);
+        // Create a new FormData and upload immediately
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        
+        setIsLoading(true);
+        try {
+          const response = await fetch(`/api/uploadProfilePicture`, {
+            method: 'POST',
+            body: formData,
+          });
+    
+          const data = await response.json();
+    
+          if (!response.ok) {
+            throw new Error(data.message || 'Failed to upload profile picture.');
+          }
+    
+          setFile(null);
+          updateUserContext(setUserData, setIsLoading);
+        } catch (err: any) {
+          setError(err.message || 'An unexpected error occurred.');
+        } finally {
+          setIsLoading(false);
         }
-  
-        setFile(null);
-        updateUserContext(setUserData, setIsLoading);
-      } catch (err: any) {
-        setError(err.message || 'An unexpected error occurred.');
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -75,30 +98,25 @@ import "react-loading-skeleton/dist/skeleton.css";
         <h1 className="text-3xl font-bold">Profile Settings</h1>
   
         <div className="relative">
-          <div className="w-32 h-32 mx-auto relative rounded-full">
+          <div className="w-32 h-32 mx-auto relative rounded-full overflow-hidden">
             {isLoading ? (
               <Skeleton className="w-full h-full" />
             ) : (
-              <label htmlFor="profile-upload" className="cursor-pointer">
-                <Avatar className="w-full h-full">
+              <label htmlFor="profile-upload" className="cursor-pointer group relative block w-full h-full">
+                <Avatar className="w-full h-full overflow-hidden transition-all duration-200 group-hover:blur-sm">
                   <AvatarImage src={file ? URL.createObjectURL(file) : userData?.employer_profile?.profile_picture?.url || "/images/emptyLogo.png"} alt="Profile picture" />
                   <AvatarFallback>JD</AvatarFallback>
                 </Avatar>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute bottom-0 right-0 rounded-full"
-                  onClick={handleUpload}
-                >
-                  <Camera className="h-4 w-4" />
-                </Button>
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <Camera className="h-8 w-8 text-white" />
+                </div>
               </label>
             )}
             <input 
               type="file"
               id="profile-upload"
               className="hidden"
-              accept="image/*"
+              accept="image/jpeg, image/png"
               onChange={handleFileChange}
             />
           </div>
