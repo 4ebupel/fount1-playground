@@ -26,6 +26,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Invalid file type' }, { status: 400 });
     }
 
+    // Validate file size
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      return NextResponse.json({ message: 'File size exceeds 5MB limit' }, { status: 400 });
+    }
+
     // Convert File to Buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
