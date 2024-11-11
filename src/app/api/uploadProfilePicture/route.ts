@@ -76,7 +76,6 @@ export async function POST(req: NextRequest) {
     }, { status: 200 });
 
   } catch (error: any) {
-    // Enhanced error logging
     console.error('Upload error details:', {
       message: error.message,
       response: error.response?.data,
