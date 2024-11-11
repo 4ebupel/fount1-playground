@@ -21,7 +21,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
   } from '@/components/ui/tooltip';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useUser } from '../contexts/UserContext';
 import updateUserContext from '@/lib/updateUserContext';
 import Skeleton from "react-loading-skeleton";
@@ -30,36 +30,16 @@ import "react-loading-skeleton/dist/skeleton.css";
     const [file, setFile] = useState<File | null>(null);
     const [error, setError] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
     const { userData, setUserData } = useUser();
-    //   if (!file) {
-    //     setError('Please select a file.');
-    //     return;
-    //   }
-  
-    //   const formData = new FormData();
-    //   formData.append('file', file);
-      
-    //   setIsLoading(true);
-    //   try {
-    //     const response = await fetch(`/api/uploadProfilePicture`, {
-    //       method: 'POST',
-    //       body: formData,
-    //     });
-  
-    //     const data = await response.json();
-  
-    //     if (!response.ok) {
-    //       throw new Error(data.message || 'Failed to upload profile picture.');
-    //     }
-  
-    //     setFile(null);
-    //     updateUserContext(setUserData, setIsLoading);
-    //   } catch (err: any) {
-    //     setError(err.message || 'An unexpected error occurred.');
-    //   } finally {
-    //     setIsLoading(false);
-    //   }
-    // };
+
+    useEffect(() => {
+      setFirstName(userData?.name_first || '');
+      setLastName(userData?.name_last || '');
+      setEmail(userData?.email || '');
+    }, [userData?.email, userData?.name_first, userData?.name_last]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setError('');
@@ -92,6 +72,36 @@ import "react-loading-skeleton/dist/skeleton.css";
         }
       }
     };
+
+    async function handleUpdateProfileInformation(): Promise<void> {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/updateProfileInformation', {
+          method: 'POST',
+          body: JSON.stringify({ firstName, lastName, email }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to update profile information.');
+        }
+
+        if (email !== userData?.email) {
+          await fetch('/api/resendVerification', {
+            method: 'POST',
+            body: JSON.stringify({ email }),
+          });
+        }
+
+        updateUserContext(setUserData, setIsLoading);
+        setError('');
+      } catch (error: any) {
+        setError(error.message || 'An unexpected error occurred.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
     return (
       <div className="space-y-6">
@@ -132,39 +142,64 @@ import "react-loading-skeleton/dist/skeleton.css";
           <div className="space-y-4">
             <div>
               <Label htmlFor="first-name">First Name</Label>
-              <Input id="first-name" />
+              {isLoading ? (
+                <Skeleton className="w-full h-8" />
+              ) : (
+                <Input id="first-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+              )}
             </div>
             <div>
               <Label htmlFor="last-name">Last Name</Label>
-              <Input id="last-name" />
+              {isLoading ? (
+                <Skeleton className="w-full h-8" />
+              ) : (
+                <Input id="last-name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+              )}
             </div>
             <div>
               <Label htmlFor="email">Confirmed Email Address</Label>
-              <div className="flex items-center">
-                <Input
-                  id="email"
-                  value="user@example.com"
-                  readOnly
-                  className="flex-grow"
-                />
-                <Check className="ml-2 text-green-500" size={20} />
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="ml-2">
-                        <Pen size={16} />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>
-                        If you edit this, you need to approve the new email and
-                        it will change the website of your company
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+              {isLoading ? (
+                <Skeleton className="w-full h-8" />
+                ) : (
+                  <div className="flex items-center">
+                    <Input
+                      id="email"
+                      value={email}
+                      className="flex-grow"
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <Check className="ml-2 text-green-500" size={20} />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" className="ml-2">
+                            <Pen size={16} />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            If you edit this, you need to approve the new email and
+                            it will change the website of your company
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                )}
             </div>
+
+            <Button 
+              variant="outline" 
+              className="w-full active:bg-gray-200 dark:active:bg-gray-800" 
+              onClick={handleUpdateProfileInformation}
+              disabled={
+                firstName === userData?.name_first 
+                && lastName === userData?.name_last 
+                && email === userData?.email
+              }
+            >
+              Update Profile Information
+            </Button>
           </div>
         </Card>
   

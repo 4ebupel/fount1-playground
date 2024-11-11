@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send verification email
+    // prepare email transporter
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
@@ -46,20 +46,21 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // prepare verification url
     const verificationUrl = `${process.env.NEXTAUTH_URL}/verify?token=${verificationToken}`;
 
-    // const mailOptions = {
-    //   from: 'fount1support',
-    //   to: email,
-    //   subject: 'Email Verification',
-    //   text: `Please verify your email by clicking the following link: ${verificationUrl}`,
-    //   html: `<p>Please verify your email by clicking the following link:</p><p><a href="${verificationUrl}">${verificationUrl}</a></p>`,
-    // };
-
+    // prepare email options
     const mailOptions = {
-      from: 'fount.one',
+      from: {
+        address: 'noreply@fount.one',
+        name: 'fount.one',
+      },
       to: email,
       subject: 'Please Confirm Your Email Address',
+      headers: {
+        'Message-ID': `<${Date.now()}@fount.one>`,
+        'Content-Type': 'text/html; charset=utf-8',
+      },
       text: `Hi ${firstName},
         Thank you for registering with us! We're excited to have you on board.
         To complete your registration and start using our services, please verify your email address by clicking the link below:
@@ -79,7 +80,9 @@ export async function POST(request: NextRequest) {
         <p>Best regards,<br>The Fount One Team</p>`,
     };
 
+    // send verification email
     await transporter.sendMail(mailOptions);
+    console.log('Verification email sent');
 
     return NextResponse.json({ message: 'Signup successful. Verification email sent.' }, { status: 200 });
   } catch (error: any) {

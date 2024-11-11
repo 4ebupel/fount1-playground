@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const response = await apiClient.get(`${apiUrl}/auth/me?profile=employer`);
     const user_data = response.data;
 
-    console.log("user_data:", user_data);
+    // console.log("user_data:", user_data);
 
     return NextResponse.json(user_data);
   } catch (error) {
