@@ -31,42 +31,65 @@ import "react-loading-skeleton/dist/skeleton.css";
     const [error, setError] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
     const { userData, setUserData } = useUser();
+    //   if (!file) {
+    //     setError('Please select a file.');
+    //     return;
+    //   }
+  
+    //   const formData = new FormData();
+    //   formData.append('file', file);
+      
+    //   setIsLoading(true);
+    //   try {
+    //     const response = await fetch(`/api/uploadProfilePicture`, {
+    //       method: 'POST',
+    //       body: formData,
+    //     });
+  
+    //     const data = await response.json();
+  
+    //     if (!response.ok) {
+    //       throw new Error(data.message || 'Failed to upload profile picture.');
+    //     }
+  
+    //     setFile(null);
+    //     updateUserContext(setUserData, setIsLoading);
+    //   } catch (err: any) {
+    //     setError(err.message || 'An unexpected error occurred.');
+    //   } finally {
+    //     setIsLoading(false);
+    //   }
+    // };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setError('');
       if (e.target.files?.[0]) {
-        setFile(e.target.files[0]);
-      }
-    };
-
-    const handleUpload = async () => {
-      if (!file) {
-        setError('Please select a file.');
-        return;
-      }
-  
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/uploadProfilePicture`, {
-          method: 'POST',
-          body: formData,
-        });
-  
-        const data = await response.json();
-  
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to upload profile picture.');
+        const selectedFile = e.target.files[0];
+        setFile(selectedFile);
+        // Create a new FormData and upload immediately
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        
+        setIsLoading(true);
+        try {
+          const response = await fetch(`/api/uploadProfilePicture`, {
+            method: 'POST',
+            body: formData,
+          });
+    
+          const data = await response.json();
+    
+          if (!response.ok) {
+            throw new Error(data.message || 'Failed to upload profile picture.');
+          }
+    
+          setFile(null);
+          updateUserContext(setUserData, setIsLoading);
+        } catch (err: any) {
+          setError(err.message || 'An unexpected error occurred.');
+        } finally {
+          setIsLoading(false);
         }
-  
-        setFile(null);
-        updateUserContext(setUserData, setIsLoading);
-      } catch (err: any) {
-        setError(err.message || 'An unexpected error occurred.');
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -88,7 +111,6 @@ import "react-loading-skeleton/dist/skeleton.css";
                   variant="secondary"
                   size="icon"
                   className="absolute bottom-0 right-0 rounded-full"
-                  onClick={handleUpload}
                 >
                   <Camera className="h-4 w-4" />
                 </Button>
@@ -98,7 +120,7 @@ import "react-loading-skeleton/dist/skeleton.css";
               type="file"
               id="profile-upload"
               className="hidden"
-              accept="image/*"
+              accept="image/jpeg, image/png"
               onChange={handleFileChange}
             />
           </div>
