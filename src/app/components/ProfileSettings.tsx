@@ -98,22 +98,18 @@ import "react-loading-skeleton/dist/skeleton.css";
         <h1 className="text-3xl font-bold">Profile Settings</h1>
   
         <div className="relative">
-          <div className="w-32 h-32 mx-auto relative rounded-full">
+          <div className="w-32 h-32 mx-auto relative rounded-full overflow-hidden">
             {isLoading ? (
               <Skeleton className="w-full h-full" />
             ) : (
-              <label htmlFor="profile-upload" className="cursor-pointer">
-                <Avatar className="w-full h-full">
+              <label htmlFor="profile-upload" className="cursor-pointer group relative block w-full h-full">
+                <Avatar className="w-full h-full overflow-hidden transition-all duration-200 group-hover:blur-sm">
                   <AvatarImage src={file ? URL.createObjectURL(file) : userData?.employer_profile?.profile_picture?.url || "/images/emptyLogo.png"} alt="Profile picture" />
                   <AvatarFallback>JD</AvatarFallback>
                 </Avatar>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute bottom-0 right-0 rounded-full"
-                >
-                  <Camera className="h-4 w-4" />
-                </Button>
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <Camera className="h-8 w-8 text-white" />
+                </div>
               </label>
             )}
             <input 
