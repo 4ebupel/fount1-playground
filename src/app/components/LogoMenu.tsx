@@ -11,12 +11,13 @@ import {
 import { LogOut, HelpCircle, Settings, Building2 } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { useUser } from "../contexts/UserContext"
 
 export default function LogoMenu() {
   const router = useRouter()
   const { data: session } = useSession();
-  const profile_picture_url = session?.user?.profilePictureUrl;
-  console.log(profile_picture_url, session);
+  const { userData } = useUser();
+  const profile_picture_url = userData?.employer_profile?.profile_picture?.url;
 
   const handleLogout = async () => {
     try {
@@ -57,25 +58,55 @@ export default function LogoMenu() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => router.push('/settings')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                router.push('/settings')
+              }
+            }}
+            className="cursor-pointer"
+          >
             <Settings className="mr-2 h-4 w-4" />
-            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, 
-            jsx-a11y/no-static-element-interactions */}
-            <span onClick={() => router.push('/settings')}>Personal Settings</span>
+            <span>
+              Personal Settings
+            </span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => router.push('/settings')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                router.push('/settings')
+              }
+            }}
+            className="cursor-pointer"
+          >
             <Building2 className="mr-2 h-4 w-4" />
-            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, 
-            jsx-a11y/no-static-element-interactions */}
-            <span onClick={() => router.push('/settings')}>Company Settings</span>
+            <span>
+              Company Settings
+            </span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => router.push('/support')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                router.push('/support')
+              }
+            }}
+            className="cursor-pointer"
+          >
             <HelpCircle className="mr-2 h-4 w-4" />
-            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, 
-            jsx-a11y/no-static-element-interactions */}
-            <span onClick={() => router.push('/support')}>Help & Support</span>
+            <span>Help & Support</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={handleLogout}>
+          <DropdownMenuItem 
+            onClick={handleLogout}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleLogout()
+              }
+            }}
+            className="cursor-pointer"
+          >
             <LogOut className="mr-2 h-4 w-4" />
             <span>Logout</span>
           </DropdownMenuItem>
