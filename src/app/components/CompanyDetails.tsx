@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Avatar,
   AvatarFallback,
@@ -31,17 +31,28 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-// import Image from 'next/image';
+import { useUser } from '../contexts/UserContext';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import Loader from './Loader';
 
 export default function CompanyDetails() {
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
   const [customBenefit, setCustomBenefit] = useState('');
+  const { userData } = useUser();
+  const router = useRouter();
 
   const benefitOptions = [
     'Equity/Stock Options',
     'Flexible Work Hours',
     // ... more benefits
   ];
+
+  useEffect(() => {
+    if (userData?.employer_profile?.role?.name !== 'admin') {
+      router.push('/settings?tab=profile');
+    }
+  }, [userData?.employer_profile?.role?.name, router]);
 
   const handleBenefitSelect = (benefit: string) => {
     if (!selectedBenefits.includes(benefit)) {
@@ -61,20 +72,23 @@ export default function CompanyDetails() {
     }
   };
 
+  if (userData?.employer_profile?.role?.name !== 'admin') {
+    return <Loader />;
+  }
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Company Details</h1>
 
       <div className="relative">
         <div className="h-32 bg-gray-200 rounded-lg overflow-hidden">
-          {/* <Image
-            src="/images/emptyLogo.png"
+          <Image
+            src={userData?.employer_profile?.companies[0]?.banner?.url || '/images/emptyLogo.png'}
             alt="Company banner"
             className="w-full h-full object-cover"
-            width={100}
-            height={100}
-          /> */}
-          <img src="/images/emptyLogo.png" alt="Company banner" className="w-full h-full object-cover" />
+            width={1920}
+            height={1080}
+          />
           <Button
             variant="secondary"
             size="sm"
@@ -88,7 +102,7 @@ export default function CompanyDetails() {
         <div className="absolute -bottom-16 left-4">
           <div className="relative">
             <Avatar className="w-32 h-32 border-4 border-white">
-              <AvatarImage src="/images/emptyLogo.png" alt="Company logo" />
+              <AvatarImage src={userData?.employer_profile?.companies[0]?.logo?.url || '/images/emptyLogo.png'} alt="Company logo" />
               <AvatarFallback>CO</AvatarFallback>
             </Avatar>
             <Button
