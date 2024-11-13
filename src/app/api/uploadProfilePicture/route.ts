@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/authOptions';
 import ApiClientServer from '@/lib/apiClientServer';
 import FormData from 'form-data';
+import basicErrorHandler from '@/lib/basicErrorHandler';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -76,21 +77,6 @@ export async function POST(req: NextRequest) {
     }, { status: 200 });
 
   } catch (error: any) {
-    console.error('Upload error details:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      config: error.config,
-      headers: error.response?.headers,
-    });
-
-    return NextResponse.json(
-      { 
-        message: 'Error uploading file', 
-        details: error.response?.data || error.message,
-        error: error, // Include full error for debugging
-      },
-      { status: 500 }
-    );
+    return basicErrorHandler(error, "Error uploading profile picture");
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import ApiClientServer from '@/lib/apiClientServer';
+import basicErrorHandler from '@/lib/basicErrorHandler';
 
 export async function POST(request: NextRequest) {
   const { email } = await request.json();
@@ -64,13 +65,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message: 'Verification email resent' }, { status: 200 });
   } catch (error: any) {
-    console.error('Resend verification error details:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      config: error.config,
-      headers: error.response?.headers,
-    });
-    return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
+    return basicErrorHandler(error, "Error resending verification email");
   }
 }

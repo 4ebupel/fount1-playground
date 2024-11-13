@@ -2,6 +2,7 @@ import { authOptions } from "@/lib/authOptions";
 import { getServerSession } from "next-auth/next";
 import { NextRequest, NextResponse } from "next/server";
 import ApiClientServer from "@/lib/apiClientServer";
+import basicErrorHandler from "@/lib/basicErrorHandler";
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
@@ -28,13 +29,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(response.data, { status: 200 });
   } catch (error: any) {
-    console.error('Update profile information error details:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      config: error.config,
-      headers: error.response?.headers,
-    });
-    return NextResponse.json({ message: 'Failed to update profile information' }, { status: 500 });
+    return basicErrorHandler(error, "Error updating profile information");
   }
 }

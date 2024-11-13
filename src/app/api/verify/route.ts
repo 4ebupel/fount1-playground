@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import ApiClientServer from '@/lib/apiClientServer';
+import basicErrorHandler from '@/lib/basicErrorHandler';
 
 export async function POST(request: NextRequest) {
   const { token } = await request.json();
@@ -31,7 +32,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message: 'Email verified successfully' }, { status: 200 });
   } catch (error: any) {
-    console.error('Verification error:', error);
-    return NextResponse.json({ error: error.message || 'An unexpected error occurred' }, { status: 500 });
+    return basicErrorHandler(error, "Error verifying email");
   }
 }
