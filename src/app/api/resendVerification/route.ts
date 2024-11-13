@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { XanoNodeClient } from '@xano/js-sdk';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import ApiClientServer from '@/lib/apiClientServer';
 
 export async function POST(request: NextRequest) {
   const { email } = await request.json();
 
   try {
-    const xano = new XanoNodeClient({
-      apiGroupBaseUrl: process.env.XANO_API_GROUP_BASE_URL,
-    });
+    const apiClient = await ApiClientServer();
 
     // Find the user by email
-    const response = await xano.get(`/users?email=${encodeURIComponent(email)}`);
-    const users = response.getBody();
+    const response = await apiClient.get(`/users?email=${encodeURIComponent(email)}`);
+    const users = response.data;
 
     if (!users || users.length === 0) {
       return NextResponse.json({ error: 'User not found' }, { status: 400 });
@@ -29,7 +27,8 @@ export async function POST(request: NextRequest) {
     const verificationToken = crypto.randomBytes(32).toString('hex');
 
     // Update user with new token
-    await xano.put(`/users/${user.id}`, {
+    await apiClient.patch('/users/updateVerificationToken', {
+      id: user.id,
       verification_token: verificationToken,
     });
 
@@ -47,9 +46,16 @@ export async function POST(request: NextRequest) {
     const verificationUrl = `${process.env.NEXTAUTH_URL}/verify?token=${verificationToken}`;
 
     const mailOptions = {
-      from: 'fount1support',
+      from: {
+        address: 'noreply@fount.one',
+        name: 'fount.one',
+      },
       to: email,
       subject: 'Resend Email Verification',
+      headers: {
+        'Message-ID': `<${Date.now()}@fount.one>`,
+        'Content-Type': 'text/html; charset=utf-8',
+      },
       text: `Please verify your email by clicking the following link: ${verificationUrl}`,
       html: `<p>Please verify your email by clicking the following link:</p><p><a href="${verificationUrl}">${verificationUrl}</a></p>`,
     };
@@ -57,8 +63,14 @@ export async function POST(request: NextRequest) {
     await transporter.sendMail(mailOptions);
 
     return NextResponse.json({ message: 'Verification email resent' }, { status: 200 });
-  } catch (error) {
-    console.error('Resend verification error:', error);
+  } catch (error: any) {
+    console.error('Resend verification error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      config: error.config,
+      headers: error.response?.headers,
+    });
     return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
   }
 }
