@@ -26,21 +26,6 @@ export async function POST(req: NextRequest) {
       email: email,
     });
 
-    // if (session.user.email !== email) {
-    //   console.log('Session email:', session.user.email);
-    //   console.log('New email:', email);
-    //   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    //   try {
-    //     await fetch(`${baseUrl}/api/resendVerification`, {
-    //       method: 'POST',
-    //       body: JSON.stringify({ email: email }),
-    //     });
-    //     console.log('Verification email resent');
-    //   } catch (error) {
-    //     console.error('Error resending verification email:', error);
-    //   }
-    // }
-
     return NextResponse.json(response.data, { status: 200 });
   } catch (error: any) {
     console.error('Update profile information error details:', {
