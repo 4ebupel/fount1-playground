@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-indent */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Avatar,
   AvatarFallback,
@@ -41,18 +41,14 @@ import getCompany from '../api/getCompany';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-interface ErrorState {
-  message: string;
-  code?: string;
-  field?: string;
-}
-
 export default function CompanyDetails() {
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
   const [customBenefit, setCustomBenefit] = useState('');
   const [companyData, setCompanyData] = useState<Company | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<ErrorState | null>(null);
+  const [error, setError] = useState<string>('');
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
   const { userData } = useUser();
   const router = useRouter();
 
@@ -62,41 +58,40 @@ export default function CompanyDetails() {
     // ... more benefits
   ];
 
+  const fetchCompany = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+
+      const companyId = userData?.employer_profile?.companies[0]?.id;
+      if (!companyId) {
+        throw new Error('No company ID found');
+      }
+
+      const company = await getCompany(companyId.toString());
+      if (!company) {
+        throw new Error('Failed to fetch company data');
+      }
+
+      setCompanyData(company);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      console.error('Error fetching company:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userData]);
+
   useEffect(() => {
     if (userData?.employer_profile?.role?.name !== 'admin') {
       router.push('/settings?tab=profile');
       return;
     }
 
-    async function fetchCompany() {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const companyId = userData?.employer_profile?.companies[0]?.id;
-        if (!companyId) {
-          throw new Error('No company ID found');
-        }
-
-        const company = await getCompany(companyId.toString());
-        if (!company) {
-          throw new Error('Failed to fetch company data');
-        }
-
-        setCompanyData(company);
-      } catch (err) {
-        setError({
-          message: err instanceof Error ? err.message : 'An unexpected error occurred',
-          code: 'FETCH_ERROR',
-        });
-        console.error('Error fetching company:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+    setIsLoading(true);
 
     fetchCompany();
-  }, [router, userData]);
+  }, [router, userData, fetchCompany]);
 
   const handleBenefitSelect = (benefit: string) => {
     if (!selectedBenefits.includes(benefit)) {
@@ -116,15 +111,88 @@ export default function CompanyDetails() {
     }
   };
 
-  const ErrorMessage = ({ error }: { error: ErrorState }) => (
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError('');
+    if (e.target.files?.[0]) {
+      const selectedFile = e.target.files[0];
+      setLogoFile(selectedFile);
+      
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('company_id', companyData?.id?.toString() || '');
+      setIsLoading(true);
+
+      try {
+        const response = await fetch('/api/uploadCompanyLogo', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error?.message);
+        }
+
+        setLogoFile(null);
+        fetchCompany();
+      } catch (error: any) {
+        // Clear the file input
+        e.target.value = '';
+        setLogoFile(null);
+        setError(error.message || 'An unexpected error occurred.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleBannerChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError('');
+    if (e.target.files?.[0]) {
+      const selectedFile = e.target.files[0];
+      setBannerFile(selectedFile);
+      
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('company_id', companyData?.id?.toString() || '');
+
+      setIsLoading(true);
+
+      try {
+        const response = await fetch('/api/updateCompanyBanner', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error?.message);
+        }
+
+        setBannerFile(null);
+        fetchCompany();
+      } catch (error: any) {
+        // Clear the file input
+        e.target.value = '';
+        setBannerFile(null);
+        setError(error.message || 'An unexpected error occurred.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const ErrorMessage = ({ error }: { error: string }) => (
     <div className="bg-red-50 border-l-4 border-red-400 p-4 my-4">
       <div className="flex">
         <div className="flex-shrink-0">
-          <X className="h-5 w-5 text-red-400" />
+          <X className="h-5 w-5 text-red-400 cursor-pointer" onClick={() => setError('')} />
         </div>
         <div className="ml-3">
           <p className="text-sm text-red-700">
-            {error.message}
+            {error}
           </p>
         </div>
       </div>
@@ -135,61 +203,67 @@ export default function CompanyDetails() {
     return <Loader />;
   }
 
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Company Details</h1>
-        <ErrorMessage error={error} />
-        <Button
-          onClick={() => window.location.reload()}
-          variant="outline"
-        >
-          Try Again
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Company Details</h1>
 
-      {error && <ErrorMessage error={error} />}
-
       <div className="relative">
         <div className="h-32 bg-gray-200 rounded-lg overflow-hidden group">
-          <div className="relative h-full">
-            <Image
-              src={companyData?.banner?.url || '/images/emptyLogo.png'}
-              alt="Company banner"
-              className="w-full h-full object-cover transition-all duration-200 group-hover:blur-sm"
-              width={1920}
-              height={1080}
-              loading="lazy"
-            />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <Upload className="h-8 w-8 text-white" />
-            </div>
-          </div>
+          {isLoading ? (
+            <Skeleton className="w-full h-full" />
+          ) : (
+            <label htmlFor="banner-upload" className="cursor-pointer group relative block h-full">
+              <Image
+                src={bannerFile ? URL.createObjectURL(bannerFile) : companyData?.banner?.url || '/images/emptyLogo.png'}
+                alt="Company banner"
+                className="w-full h-full object-cover transition-all duration-200 group-hover:blur-sm"
+                width={1920}
+                height={1080}
+                loading="lazy"
+              />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <Upload className="h-8 w-8 text-white" />
+              </div>
+              <input
+                type="file"
+                id="banner-upload"
+                className="hidden"
+                accept="image/jpeg, image/png"
+                onChange={handleBannerChange}
+              />
+            </label>
+          )}
         </div>
         <div className="absolute -bottom-16 left-4">
-          <div className="relative group">
-            <Avatar className="w-32 h-32 border-4 border-white overflow-hidden">
+          {isLoading ? (
+            <Skeleton className="w-32 h-32" />
+          ) : (
+            <label htmlFor="logo-upload" className="cursor-pointer group relative block w-full h-full">
+              <Avatar className="w-32 h-32 border-4 border-white overflow-hidden">
               <AvatarImage
-                src={companyData?.logo?.url || '/images/emptyLogo.png'}
+                src={logoFile ? URL.createObjectURL(logoFile) : companyData?.logo?.url || '/images/emptyLogo.png'}
                 alt="Company logo"
                 className="transition-all duration-200 group-hover:blur-sm"
               />
               <AvatarFallback>CO</AvatarFallback>
-            </Avatar>
+              </Avatar>
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <Camera className="h-8 w-8 text-white" />
             </div>
-          </div>
+            <input
+              type="file"
+              id="logo-upload"
+              className="hidden"
+              accept="image/jpeg, image/png"
+              onChange={handleLogoChange}
+            />
+            </label>
+          )}
         </div>
       </div>
 
       <div className="h-16" />
+      {error && <ErrorMessage error={error} />}
 
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Basic Details</h2>

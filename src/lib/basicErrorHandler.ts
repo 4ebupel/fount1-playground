@@ -34,10 +34,27 @@ export default function basicErrorHandler(error: any, message_title: string) {
 
         const errorMessage = errorResponses[status] || message || 'An unexpected error occurred';
         return NextResponse.json({ 
-            error: errorMessage,
-            details: process.env.NODE_ENV === 'development' ? message : undefined,
+            error: {
+                message: errorMessage,
+                details: process.env.NODE_ENV === 'development' ? message : undefined,
+                status,
+            },
         }, { status });
     }
 
-    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
+    if (error instanceof Error) {
+        return NextResponse.json({ 
+            error: {
+                message: error.message,
+                status: 400,
+            },
+        }, { status: 400 });
+    }
+
+    return NextResponse.json({ 
+        error: {
+            message: "An unexpected error occurred",
+            status: 500,
+        },
+    }, { status: 500 });
 }
