@@ -10,6 +10,53 @@ declare module "next-auth" {
   }
 }
 
+async function refreshAccessToken(token: JWT) {
+  try {
+    const xano = new XanoNodeClient({
+      apiGroupBaseUrl: process.env.XANO_API_GROUP_BASE_URL,
+    });   
+
+    const response = await xano.post("/auth/refresh", {
+      refresh_token: token.refreshToken,
+    });
+
+    const responseBody = response.getBody();
+
+    const accessToken = responseBody?.access_token;
+    const refreshToken = responseBody?.refresh_token;
+    const expiresIn = responseBody?.expires_in; // in seconds
+
+    if (!accessToken || !refreshToken) {
+      throw new Error("Failed to refresh access token");
+    }
+
+    const accessTokenExpires = Date.now() + expiresIn * 1000;
+
+    return {
+      ...token,
+      accessToken,
+      refreshToken,
+      accessTokenExpires,
+    };
+  } catch (error: any) {
+    if (error.response) {
+      // Server responded with a status code outside the 2xx range
+      console.error("Error response from Xano:", error.response.data);
+    } else if (error.request) {
+      // No response received
+      console.error("No response received when refreshing access token:", error.request);
+    } else {
+      // Error setting up the request
+      console.error("Error setting up refresh token request:", error.message);
+    }
+  
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    };
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -109,7 +156,6 @@ export const authOptions: NextAuthOptions = {
   
       // Access token has expired, try to refresh it
       console.log("Access token has expired, refreshing...");
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       return await refreshAccessToken(token);
     },
     async session({ session, token }) {
@@ -137,50 +183,3 @@ export const authOptions: NextAuthOptions = {
   debug: true,
   secret: process.env.NEXTAUTH_SECRET,
 };
-
-async function refreshAccessToken(token: JWT) {
-  try {
-    const xano = new XanoNodeClient({
-      apiGroupBaseUrl: process.env.XANO_API_GROUP_BASE_URL,
-    });   
-
-    const response = await xano.post("/auth/refresh", {
-      refresh_token: token.refreshToken,
-    });
-
-    const responseBody = response.getBody();
-
-    const accessToken = responseBody?.access_token;
-    const refreshToken = responseBody?.refresh_token;
-    const expiresIn = responseBody?.expires_in; // in seconds
-
-    if (!accessToken || !refreshToken) {
-      throw new Error("Failed to refresh access token");
-    }
-
-    const accessTokenExpires = Date.now() + expiresIn * 1000;
-
-    return {
-      ...token,
-      accessToken,
-      refreshToken,
-      accessTokenExpires,
-    };
-  } catch (error: any) {
-    if (error.response) {
-      // Server responded with a status code outside the 2xx range
-      console.error("Error response from Xano:", error.response.data);
-    } else if (error.request) {
-      // No response received
-      console.error("No response received when refreshing access token:", error.request);
-    } else {
-      // Error setting up the request
-      console.error("Error setting up refresh token request:", error.message);
-    }
-  
-    return {
-      ...token,
-      error: "RefreshAccessTokenError",
-    };
-  }
-}

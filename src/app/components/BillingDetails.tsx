@@ -9,8 +9,25 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Loader } from 'lucide-react';
+import { useUser } from '../contexts/UserContext';
+import { useEffect } from 'react';
+import { useRouter } from 'next/dist/client/components/navigation';
 
 export default function BillingDetails() {
+  const { userData } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (userData?.employer_profile?.role?.name !== 'admin') {
+      router.push('/settings?tab=profile');
+    }
+  }, [userData?.employer_profile?.role?.name, router]);
+
+  if (userData?.employer_profile?.role?.name !== 'admin') {
+    return <Loader />;
+  }
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Billing Details</h1>

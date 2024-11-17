@@ -1,4 +1,5 @@
 import { GeoPoint } from "./GeoPoint";
+import { SocialMedia } from "./SocialMedia";
 import { XanoMinPicture } from "./XanoMinPicture";
 
 export interface Company {
@@ -17,4 +18,5 @@ export interface Company {
     logo: XanoMinPicture;
     banner: XanoMinPicture;
     location: GeoPoint;
+    social_media?: SocialMedia[];
 }

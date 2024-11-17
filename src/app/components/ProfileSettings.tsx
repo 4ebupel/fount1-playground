@@ -46,7 +46,7 @@ import "react-loading-skeleton/dist/skeleton.css";
       if (e.target.files?.[0]) {
         const selectedFile = e.target.files[0];
         setFile(selectedFile);
-        // Create a new FormData and upload immediately
+        
         const formData = new FormData();
         formData.append('file', selectedFile);
         
@@ -60,12 +60,15 @@ import "react-loading-skeleton/dist/skeleton.css";
           const data = await response.json();
     
           if (!response.ok) {
-            throw new Error(data.message || 'Failed to upload profile picture.');
+            throw new Error(data.error?.message);
           }
     
           setFile(null);
           updateUserContext(setUserData, setIsLoading);
         } catch (err: any) {
+          // Clear the file input
+          e.target.value = '';
+          setFile(null);
           setError(err.message || 'An unexpected error occurred.');
         } finally {
           setIsLoading(false);
@@ -78,20 +81,31 @@ import "react-loading-skeleton/dist/skeleton.css";
       try {
         const response = await fetch('/api/updateProfileInformation', {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify({ firstName, lastName, email }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || 'Failed to update profile information.');
+          throw new Error(data.error?.message || 'Failed to update profile information.');
         }
 
         if (email !== userData?.email) {
-          await fetch('/api/resendVerification', {
+          const verifyResponse = await fetch('/api/resendVerification', {
             method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
             body: JSON.stringify({ email }),
           });
+          
+          const verifyData = await verifyResponse.json();
+          if (!verifyResponse.ok) {
+            throw new Error(verifyData.error?.message || 'Failed to send verification email.');
+          }
         }
 
         updateUserContext(setUserData, setIsLoading);

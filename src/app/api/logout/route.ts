@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { XanoNodeClient } from '@xano/js-sdk';
+import basicErrorHandler from '@/lib/basicErrorHandler';
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,7 +33,6 @@ export async function POST(request: NextRequest) {
     // Successfully invalidated the refresh token
     return NextResponse.json({ message: 'Logged out successfully' }, { status: 200 });
   } catch (error) {
-    console.error('Error invalidating refresh token:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return basicErrorHandler(error, "Error logging out");
   }
 }

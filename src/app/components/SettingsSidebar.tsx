@@ -1,5 +1,6 @@
 import { User, Building, CreditCard } from 'lucide-react';
 import NavItemBtn from './NavItemBtn';
+import { useUser } from '../contexts/UserContext';
 
 type SidebarProps = {
   activeSection: string;
@@ -7,6 +8,9 @@ type SidebarProps = {
 };
 
 export default function SettingsSidebar({ activeSection, setActiveSection }: SidebarProps) {
+  const { userData } = useUser();
+  const isAdmin = userData?.employer_profile?.role?.name === 'admin';
+
   return (
     <div className="w-64 bg-white shadow-sm h-full">
       <div className="p-4 border-b flex items-center space-x-2">
@@ -21,21 +25,25 @@ export default function SettingsSidebar({ activeSection, setActiveSection }: Sid
           onClick={() => setActiveSection('profile')}
         />
 
-        <div className="mt-6 mb-2">
-          <h3 className="text-sm font-medium text-gray-500 uppercase">Company Account</h3>
-        </div>
-        <NavItemBtn
-          icon={<Building size={18} />}
-          label="Company Details"
-          isActive={activeSection === 'companyDetails'}
-          onClick={() => setActiveSection('companyDetails')}
-        />
-        <NavItemBtn
-          icon={<CreditCard size={18} />}
-          label="Billing Details"
-          isActive={activeSection === 'billingDetails'}
-          onClick={() => setActiveSection('billingDetails')}
-        />
+        {isAdmin && (
+          <>
+            <div className="mt-6 mb-2">
+              <h3 className="text-sm font-medium text-gray-500 uppercase">Company Account</h3>
+            </div>
+            <NavItemBtn
+              icon={<Building size={18} />}
+              label="Company Details"
+              isActive={activeSection === 'companyDetails'}
+              onClick={() => setActiveSection('companyDetails')}
+            />
+            <NavItemBtn
+              icon={<CreditCard size={18} />}
+              label="Billing Details"
+              isActive={activeSection === 'billingDetails'}
+              onClick={() => setActiveSection('billingDetails')}
+            />
+          </>
+        )}
       </nav>
     </div>
   );

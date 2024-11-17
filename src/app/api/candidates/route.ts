@@ -3,6 +3,7 @@ import apiClientServer from '@/lib/apiClientServer';
 import { authOptions } from '@/lib/authOptions';
 import { getServerSession } from 'next-auth';
 import type { NextRequest } from 'next/server';
+import basicErrorHandler from '@/lib/basicErrorHandler';
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,23 +24,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(candidates);
   } catch (error) {
-    console.error('Error fetching candidates:', error);
-
-    // Do not look at this.
-    if (
-      error &&
-      typeof error === 'object' &&
-      'response' in error &&
-      error.response &&
-      typeof error.response === 'object' &&
-      'status' in error.response &&
-      error.response.status === 401
-    ) {
-      // Handle unauthorized access
-      console.log("Unauthorized access detected. Redirecting to login.");
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-
-    return NextResponse.json({ error: 'Failed to fetch candidates' }, { status: 500 });
+    return basicErrorHandler(error, "Error fetching candidates");
   }
 }

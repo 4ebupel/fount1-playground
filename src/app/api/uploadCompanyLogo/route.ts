@@ -16,18 +16,20 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File;
+    const companyId = formData.get('company_id') as string;
     
-    const { formData: xanoFormData, fileDetails } = await processUploadedFile(file);
+    const { formData: xanoFormData } = await processUploadedFile(file, {}, {
+      company_id: companyId,
+    });
 
     const apiClient = await ApiClientServer();
 
     // Debug logs
-    console.log('Request URL:', `${process.env.XANO_API_GROUP_BASE_URL}/employers/updatePicture`);
+    console.log('Request URL:', `${process.env.XANO_API_GROUP_BASE_URL}/companies/update/logo`);
     console.log('Form Data Headers:', xanoFormData.getHeaders());
-    console.log('File Details:', fileDetails);
 
     const response = await apiClient.patch(
-      `${process.env.XANO_API_GROUP_BASE_URL}/employers/updatePicture`,
+      `${process.env.XANO_API_GROUP_BASE_URL}/companies/update/logo`,
       xanoFormData,
       {
         headers: {
@@ -41,11 +43,11 @@ export async function POST(req: NextRequest) {
     );
 
     return NextResponse.json({ 
-      message: 'Profile picture updated successfully',
+      message: 'Company logo updated successfully',
       data: response.data,
     }, { status: 200 });
 
   } catch (error: any) {
-    return basicErrorHandler(error, "Error uploading profile picture");
+    return basicErrorHandler(error, "Error uploading company logo");
   }
 }
