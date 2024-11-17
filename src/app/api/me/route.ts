@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/authOptions';
 import apiClientServer from '@/lib/apiClientServer';
-import { isAxiosError } from 'axios';
 import basicErrorHandler from '@/lib/basicErrorHandler';
 
 export async function GET(request: NextRequest) {
