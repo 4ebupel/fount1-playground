@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-indent */
 import { useCallback, useEffect, useState } from 'react';
 import {
   Avatar,
@@ -9,13 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import {
   Camera,
@@ -43,7 +35,9 @@ import 'react-loading-skeleton/dist/skeleton.css';
 
 export default function CompanyDetails() {
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
-  const [customBenefit, setCustomBenefit] = useState('');
+  const [customBenefit, setCustomBenefit] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [name, setName] = useState<string>('');
   const [companyData, setCompanyData] = useState<Company | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -52,11 +46,9 @@ export default function CompanyDetails() {
   const { userData } = useUser();
   const router = useRouter();
 
-  const benefitOptions = [
-    'Equity/Stock Options',
-    'Flexible Work Hours',
-    // ... more benefits
-  ];
+  const old_benefits = companyData?.benefits || []  ;
+  const new_benefits = selectedBenefits;
+  const is_changed = companyData?.name !== companyData?.name || description !== companyData?.description || new_benefits.sort().join(',') !== old_benefits.sort().join(',');
 
   const fetchCompany = useCallback(async () => {
     try {
@@ -74,6 +66,9 @@ export default function CompanyDetails() {
       }
 
       setCompanyData(company);
+      setSelectedBenefits(company.benefits || []);
+      setDescription(company.description || '');
+      setName(company.name || '');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');
       console.error('Error fetching company:', err);
@@ -93,23 +88,33 @@ export default function CompanyDetails() {
     fetchCompany();
   }, [router, userData, fetchCompany]);
 
-  const handleBenefitSelect = (benefit: string) => {
-    if (!selectedBenefits.includes(benefit)) {
-      setSelectedBenefits([...selectedBenefits, benefit]);
+  const handleInfoChange = async () => {
+    setError('');
+    setIsLoading(true);
+    if (!is_changed) {
+      setIsLoading(false);
+      return;
     }
-  };
 
-  const handleRemoveBenefit = (benefit: string) => {
-    setSelectedBenefits(selectedBenefits.filter((b) => b !== benefit));
-  };
+    try {
+      const response = await fetch('/api/updateCompanyInfo', {
+        method: 'POST',
+        body: JSON.stringify({ company_id: companyData?.id, name: companyData?.name === name ? "" : name, description: companyData?.description === description ? "" : description, selectedBenefits: companyData?.benefits === selectedBenefits ? [] : selectedBenefits }),
+      });
 
-  const handleCustomBenefitAdd = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (customBenefit && !selectedBenefits.includes(customBenefit)) {
-      setSelectedBenefits([...selectedBenefits, customBenefit]);
-      setCustomBenefit('');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message);
+      }
+
+      fetchCompany();
+    } catch (error: any) {
+      setError(error.message || 'An unexpected error occurred.');
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }
 
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setError('');
@@ -240,23 +245,23 @@ export default function CompanyDetails() {
           ) : (
             <label htmlFor="logo-upload" className="cursor-pointer group relative block w-full h-full">
               <Avatar className="w-32 h-32 border-4 border-white overflow-hidden">
-              <AvatarImage
-                src={logoFile ? URL.createObjectURL(logoFile) : companyData?.logo?.url || '/images/emptyLogo.png'}
-                alt="Company logo"
-                className="transition-all duration-200 group-hover:blur-sm"
-              />
-              <AvatarFallback>CO</AvatarFallback>
+                <AvatarImage
+                  src={logoFile ? URL.createObjectURL(logoFile) : companyData?.logo?.url || '/images/emptyLogo.png'}
+                  alt="Company logo"
+                  className="object-cover w-full h-full transition-all duration-200 group-hover:blur-sm"
+                />
+                <AvatarFallback>CO</AvatarFallback>
               </Avatar>
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <Camera className="h-8 w-8 text-white" />
-            </div>
-            <input
-              type="file"
-              id="logo-upload"
-              className="hidden"
-              accept="image/jpeg, image/png"
-              onChange={handleLogoChange}
-            />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <Camera className="h-8 w-8 text-white" />
+              </div>
+              <input
+                type="file"
+                id="logo-upload"
+                className="hidden"
+                accept="image/jpeg, image/png"
+                onChange={handleLogoChange}
+              />
             </label>
           )}
         </div>
@@ -273,24 +278,93 @@ export default function CompanyDetails() {
             {isLoading ? <Skeleton className="w-full h-8" /> : (
               <Input
                 id="company-name"
-                defaultValue={companyData?.name}
-                onChange={(e) => setCompanyData((prev) => prev ? { ...prev, name: e.target.value } : null)}
+                defaultValue={name}
+                onChange={(e) => setName(e.target.value)}
               />
             )}
           </div>
           <div>
-            <Label htmlFor="employees">Employees</Label>
+            <Label>Benefits</Label>
+            <div className="space-y-2 mt-2">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Add custom benefit"
+                  value={customBenefit}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setSelectedBenefits([...selectedBenefits, e.currentTarget.value]);
+                      e.currentTarget.value = '';
+                      setCustomBenefit('');
+
+                      if (selectedBenefits.includes(customBenefit)) {
+                        setCustomBenefit('');
+                      }
+                    }
+                  }}
+                  onChange={(e) => {
+                    setCustomBenefit(e.currentTarget.value);
+                  }}
+                />
+                <Button
+                  disabled={!customBenefit}
+                  onClick={() => {
+                    if (customBenefit) {
+                      setSelectedBenefits([...selectedBenefits, customBenefit]);
+                      setCustomBenefit('');
+
+                      if (selectedBenefits.includes(customBenefit)) {
+                        setCustomBenefit('');
+                      }
+                    }
+                  }}
+                >
+                  Add
+                </Button>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {selectedBenefits.map((benefit) => (
+                <Badge
+                  key={benefit}
+                  variant="secondary"
+                  className="text-sm py-1 px-2"
+                >
+                  {benefit}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-1 h-auto p-0"
+                    onClick={() => setSelectedBenefits(selectedBenefits.filter((b) => b !== benefit))}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </Badge>
+                ))}
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="company-summary">Company Summary</Label>
             {isLoading ? <Skeleton className="w-full h-8" /> : (
-              <Input
-                id="employees"
-                defaultValue={companyData?.employees}
-                // eslint-disable-next-line max-len
-                onChange={(e) => setCompanyData((prev) => prev ? { ...prev, employees: parseInt(e.target.value) } : null)}
-                type="number"
+              <textarea
+                id="company-summary"
+                className="w-full mt-1 p-2 border rounded-md"
+                rows={4}
+                defaultValue={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             )}
           </div>
-          {/* Add more form fields as needed */}
+        </div>
+        <div className="flex justify-center mt-6">
+          <Button 
+            type="submit" 
+            className="w-full"
+            size="lg"
+            disabled={isLoading || !is_changed}
+            onClick={handleInfoChange}
+          >
+            Save Changes
+          </Button>
         </div>
       </Card>
 
@@ -346,62 +420,6 @@ export default function CompanyDetails() {
                   </Tooltip>
                 </TooltipProvider>
               </div>
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="company-summary">Company Summary</Label>
-            {isLoading ? <Skeleton className="w-full h-8" /> : (
-              <textarea
-                id="company-summary"
-                className="w-full mt-1 p-2 border rounded-md"
-                rows={4}
-                defaultValue={companyData?.description}
-                onChange={(e) => setCompanyData((prev) => prev ? { ...prev, description: e.target.value } : null)}
-              />
-            )}
-          </div>
-          <div>
-            <Label>Benefits</Label>
-            <div className="space-y-2 mt-2">
-              <Select onValueChange={handleBenefitSelect}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select benefits" />
-                </SelectTrigger>
-                <SelectContent>
-                  {benefitOptions.filter((benefit) => !selectedBenefits.includes(benefit)).map((benefit) => (
-                    <SelectItem key={benefit} value={benefit}>
-                      {benefit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {selectedBenefits.map((benefit) => (
-                  <Badge
-                    key={benefit}
-                    variant="secondary"
-                    className="text-sm py-1 px-2"
-                  >
-                    {benefit}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="ml-1 h-auto p-0"
-                      onClick={() => handleRemoveBenefit(benefit)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
-              <form onSubmit={handleCustomBenefitAdd} className="flex gap-2">
-                <Input
-                  placeholder="Add custom benefit"
-                  value={customBenefit}
-                  onChange={(e) => setCustomBenefit(e.target.value)}
-                />
-                <Button type="submit">Add</Button>
-              </form>
             </div>
           </div>
         </div>
