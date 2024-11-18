@@ -128,7 +128,11 @@ import "react-loading-skeleton/dist/skeleton.css";
             ) : (
               <label htmlFor="profile-upload" className="cursor-pointer group relative block w-full h-full">
                 <Avatar className="w-full h-full overflow-hidden transition-all duration-200 group-hover:blur-sm">
-                  <AvatarImage src={file ? URL.createObjectURL(file) : userData?.employer_profile?.profile_picture?.url || "/images/emptyLogo.png"} alt="Profile picture" />
+                  <AvatarImage 
+                    src={file ? URL.createObjectURL(file) : userData?.employer_profile?.profile_picture?.url || "/images/emptyLogo.png"} 
+                    alt="Profile picture"
+                    className="object-cover w-full h-full"
+                  />
                   <AvatarFallback>JD</AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
