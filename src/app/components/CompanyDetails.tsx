@@ -32,6 +32,7 @@ import { Company } from '../types/Company';
 import getCompany from '../api/getCompany';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { ErrorMessage } from './ErrorMessage';
 
 export default function CompanyDetails() {
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
@@ -222,21 +223,6 @@ export default function CompanyDetails() {
     }
   };
 
-  const ErrorMessage = ({ error }: { error: string }) => (
-    <div className="bg-red-50 border-l-4 border-red-400 p-4 my-4">
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <X className="h-5 w-5 text-red-400 cursor-pointer" onClick={() => setError('')} />
-        </div>
-        <div className="ml-3">
-          <p className="text-sm text-red-700">
-            {error}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-
   if (userData?.employer_profile?.role?.name !== 'admin') {
     return <Loader />;
   }
@@ -301,7 +287,7 @@ export default function CompanyDetails() {
       </div>
 
       <div className="h-16" />
-      {error && <ErrorMessage error={error} />}
+      {error && <ErrorMessage error={error} setError={setError} />}
 
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Basic Details</h2>
