@@ -1,3 +1,4 @@
+import { BillingDetails } from "./BillingDetails";
 import { GeoPoint } from "./GeoPoint";
 import { SocialMedia } from "./SocialMedia";
 import { XanoMinPicture } from "./XanoMinPicture";
@@ -19,4 +20,5 @@ export interface Company {
     banner: XanoMinPicture;
     location: GeoPoint;
     social_media?: SocialMedia[];
+    billing_details: BillingDetails;
 }

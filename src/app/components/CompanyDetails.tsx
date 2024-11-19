@@ -32,10 +32,14 @@ import { Company } from '../types/Company';
 import getCompany from '../api/getCompany';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { ErrorMessage } from './ErrorMessage';
 
 export default function CompanyDetails() {
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
   const [customBenefit, setCustomBenefit] = useState<string>('');
+  const [socials, setSocials] = useState<{ platform_name: string, url: string }[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [website, setWebsite] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [companyData, setCompanyData] = useState<Company | null>(null);
@@ -49,6 +53,10 @@ export default function CompanyDetails() {
   const old_benefits = companyData?.benefits || []  ;
   const new_benefits = selectedBenefits;
   const is_changed = companyData?.name !== companyData?.name || description !== companyData?.description || new_benefits.sort().join(',') !== old_benefits.sort().join(',');
+  const old_socials = companyData?.social_media || [];
+  const new_socials = socials;
+  // eslint-disable-next-line max-len
+  const is_socials_changed = JSON.stringify(new_socials.sort((a, b) => a.url.localeCompare(b.url))) !== JSON.stringify(old_socials.sort((a, b) => a.url.localeCompare(b.url)));
 
   const fetchCompany = useCallback(async () => {
     try {
@@ -69,6 +77,8 @@ export default function CompanyDetails() {
       setSelectedBenefits(company.benefits || []);
       setDescription(company.description || '');
       setName(company.name || '');
+      setSocials(company.social_media || []);
+      setWebsite(company.website || '');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');
       console.error('Error fetching company:', err);
@@ -100,6 +110,30 @@ export default function CompanyDetails() {
       const response = await fetch('/api/updateCompanyInfo', {
         method: 'POST',
         body: JSON.stringify({ company_id: companyData?.id, name: companyData?.name === name ? "" : name, description: companyData?.description === description ? "" : description, selectedBenefits: companyData?.benefits === selectedBenefits ? [] : selectedBenefits }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message);
+      }
+
+      fetchCompany();
+    } catch (error: any) {
+      setError(error.message || 'An unexpected error occurred.');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const handleSocialsChange = async () => {
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/updateCompanySocials', {
+        method: 'POST',
+        body: JSON.stringify({ company_id: companyData?.id, socials: socials }),
       });
 
       const data = await response.json();
@@ -189,21 +223,6 @@ export default function CompanyDetails() {
     }
   };
 
-  const ErrorMessage = ({ error }: { error: string }) => (
-    <div className="bg-red-50 border-l-4 border-red-400 p-4 my-4">
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <X className="h-5 w-5 text-red-400 cursor-pointer" onClick={() => setError('')} />
-        </div>
-        <div className="ml-3">
-          <p className="text-sm text-red-700">
-            {error}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-
   if (userData?.employer_profile?.role?.name !== 'admin') {
     return <Loader />;
   }
@@ -268,7 +287,7 @@ export default function CompanyDetails() {
       </div>
 
       <div className="h-16" />
-      {error && <ErrorMessage error={error} />}
+      {error && <ErrorMessage error={error} setError={setError} />}
 
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Basic Details</h2>
@@ -339,7 +358,7 @@ export default function CompanyDetails() {
                     <X className="h-3 w-3" />
                   </Button>
                 </Badge>
-                ))}
+              ))}
             </div>
           </div>
           <div>
@@ -381,7 +400,19 @@ export default function CompanyDetails() {
                     <Skeleton className="w-full h-8" />
                   </div>
                 ) : (
-                  <Input placeholder="LinkedIn" className="flex-grow" defaultValue={companyData?.social_media?.find((sm) => sm.platform_name === 'linkedin')?.url} />
+                  <Input
+                    placeholder="LinkedIn"
+                    className="flex-grow"
+                    defaultValue={socials.find((s) => s.platform_name === 'linkedin')?.url}
+                    onChange={(e) => {
+                      const existingSocials = socials.filter((s) => s.platform_name !== 'linkedin');
+                      if (e.target.value) {
+                        setSocials([...existingSocials, { platform_name: 'linkedin', url: e.target.value }]);
+                      } else {
+                        setSocials(existingSocials);
+                      }
+                    }}
+                  />
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -391,7 +422,19 @@ export default function CompanyDetails() {
                     <Skeleton className="w-full h-8" />
                   </div>
                 ) : (
-                  <Input placeholder="Twitter" className="flex-grow" defaultValue={companyData?.social_media?.find((sm) => sm.platform_name === 'x' || sm.platform_name === 'twitter')?.url} />
+                  <Input
+                    placeholder="Twitter"
+                    className="flex-grow"
+                    defaultValue={socials.find((s) => s.platform_name === 'twitter' || s.platform_name === 'x')?.url}
+                    onChange={(e) => {
+                      const existingSocials = socials.filter((s) => s.platform_name !== 'twitter' && s.platform_name !== 'x');
+                      if (e.target.value) {
+                        setSocials([...existingSocials, { platform_name: 'x', url: e.target.value }]);
+                      } else {
+                        setSocials(existingSocials);
+                      }
+                    }}
+                  />
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -402,7 +445,7 @@ export default function CompanyDetails() {
                   </div>
                 ) : (
                   <Input
-                    value={companyData?.website}
+                    value={website}
                     readOnly
                     className="flex-grow"
                   />
@@ -428,7 +471,8 @@ export default function CompanyDetails() {
             type="submit" 
             className="w-full"
             size="lg"
-            disabled={isLoading}
+            disabled={isLoading || !is_socials_changed}
+            onClick={handleSocialsChange}
           >
             Save Changes
           </Button>

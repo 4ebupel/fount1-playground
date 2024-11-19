@@ -59,10 +59,10 @@ export default function LogoMenu() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuItem
-            onClick={() => router.push('/settings')}
+            onClick={() => router.push('/settings?tab=profile')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
-                router.push('/settings')
+                router.push('/settings?tab=profile')
               }
             }}
             className="cursor-pointer"
@@ -73,10 +73,10 @@ export default function LogoMenu() {
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => router.push('/settings')}
+            onClick={() => router.push('/settings?tab=companyDetails')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
-                router.push('/settings')
+                router.push('/settings?tab=companyDetails')
               }
             }}
             className="cursor-pointer"

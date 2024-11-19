@@ -35,6 +35,7 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
+    'indent': ['error', 2], // 2 spaces indentation for all files
 
     // Additional rules for React component spacing
     'react/jsx-indent': ['error', 2], // 2 spaces indentation
