@@ -26,6 +26,7 @@ import { useUser } from '../contexts/UserContext';
 import updateUserContext from '@/lib/updateUserContext';
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { ErrorMessage } from './ErrorMessage';
 export default function ProfileSettings() {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string>('');
@@ -148,11 +149,7 @@ export default function ProfileSettings() {
             onChange={handleFileChange}
           />
         </div>
-        {error && (
-          <p className="text-sm text-red-500 text-center mt-2">
-            {error}
-          </p>
-        )}
+        {error && <ErrorMessage error={error} setError={setError} />}
       </div>
   
       <Card className="p-6">

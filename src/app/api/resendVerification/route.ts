@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import ApiClientServer from '@/lib/apiClientServer';
 import basicErrorHandler from '@/lib/basicErrorHandler';
 
@@ -33,36 +33,20 @@ export async function POST(request: NextRequest) {
       verification_token: verificationToken,
     });
 
-    // Send verification email
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
     const verificationUrl = `${process.env.NEXTAUTH_URL}/verify?token=${verificationToken}`;
 
-    const mailOptions = {
-      from: {
-        address: 'noreply@fount.one',
-        name: 'fount.one',
-      },
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+
+    const msg = {
       to: email,
+      from: 'noreply@fount.one',
       subject: 'Resend Email Verification',
-      headers: {
-        'Message-ID': `<${Date.now()}@fount.one>`,
-        'Content-Type': 'text/html; charset=utf-8',
-      },
       text: `Please verify your email by clicking the following link: ${verificationUrl}`,
       html: `<p>Please verify your email by clicking the following link:</p><p><a href="${verificationUrl}">${verificationUrl}</a></p>`,
     };
 
-    await transporter.sendMail(mailOptions);
-
+    await sgMail.send(msg);
+    console.log('Verification email resent');
     return NextResponse.json({ message: 'Verification email resent' }, { status: 200 });
   } catch (error: any) {
     return basicErrorHandler(error, "Error resending verification email");

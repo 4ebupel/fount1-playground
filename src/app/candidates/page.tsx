@@ -8,7 +8,7 @@ import Header from "../components/Header";
 export default async function CandidatePage() {
   const session = await getServerSession(authOptions)
 
-  if (!session) {
+  if (!session || !session.user.isVerified) {
     redirect("/login");
   }
 
