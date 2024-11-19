@@ -20,8 +20,8 @@ export default function CandidateCard({ candidate, isSelected, onClick }: Candid
   const pieChartData = sortedSkillsTalents
     .slice(0, 3)
     .map((talent) => ({
-    name: talent.talent_title,
-    value: parseInt(talent.self_verified_level),
+      name: talent.talent_title,
+      value: parseInt(talent.self_verified_level),
     }))
 
   const totalValue = pieChartData.reduce((sum, item) => sum + item.value, 0)

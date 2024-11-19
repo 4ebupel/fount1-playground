@@ -106,16 +106,16 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
               <HoverCardContent>
                 <ul className="mt-2">
                   {selectedCandidate.standardized_documents
-                  .filter((doc) => doc.type === 'Languages')
-                  .map((doc, index) => (
-                    <li key={index} className="text-sm mb-1">
-                      <span className="font-semibold">
-                        {doc.title}
-                        :
-                      </span> 
-                      {' '}
-                      {doc.level || "N/A"}
-                    </li>
+                    .filter((doc) => doc.type === 'Languages')
+                    .map((doc, index) => (
+                      <li key={index} className="text-sm mb-1">
+                        <span className="font-semibold">
+                          {doc.title}
+                          :
+                        </span> 
+                        {' '}
+                        {doc.level || "N/A"}
+                      </li>
                     ))}
                 </ul>
               </HoverCardContent>
@@ -188,7 +188,7 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
                     </p>
                   </div>
                 </div>
-            ))
+              ))
             ) : (
               <p>No experiences available</p>
             )}
@@ -229,7 +229,7 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
               </RadarChart>
             </div>
           </div>
-          )}        
+        )}        
       </CardContent>
       <ExperienceDetailsDialog
         experience={selectedExperience}
