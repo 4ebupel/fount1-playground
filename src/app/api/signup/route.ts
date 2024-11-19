@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { XanoNodeClient } from '@xano/js-sdk';
 import crypto from 'crypto';
-// import nodemailer from 'nodemailer';
 import sgMail from '@sendgrid/mail';
 
 export async function POST(request: NextRequest) {
@@ -36,17 +35,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // prepare email transporter
-    // const transporter = nodemailer.createTransport({
-    //   host: process.env.SMTP_HOST,
-    //   port: Number(process.env.SMTP_PORT),
-    //   secure: false, // true for 465, false for other ports
-    //   auth: {
-    //     user: process.env.SMTP_USER,
-    //     pass: process.env.SMTP_PASS,
-    //   },
-    // });
-
     const verificationUrl = `${process.env.NEXTAUTH_URL}/verify?token=${verificationToken}`;
     
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
@@ -73,39 +61,6 @@ export async function POST(request: NextRequest) {
         <p>Thanks again, and we look forward to having you with us!</p>
         <p>Best regards,<br>The Fount One Team</p>`,
     };
-
-    // prepare verification url
-
-    // prepare email options
-    // const mailOptions = {
-    //   from: {
-    //     address: 'noreply@fount.one',
-    //     name: 'fount.one',
-    //   },
-    //   to: email,
-    //   subject: 'Please Confirm Your Email Address',
-    //   headers: {
-    //     'Message-ID': `<${Date.now()}@fount.one>`,
-    //     'Content-Type': 'text/html; charset=utf-8',
-    //   },
-    //   text: `Hi ${firstName},
-    //     Thank you for registering with us! We're excited to have you on board.
-    //     To complete your registration and start using our services, please verify your email address by clicking the link below:
-    //     ${verificationUrl}
-    //     If you did not sign up for this account, please disregard this email.
-    //     Thanks again, and we look forward to having you with us!
-    //     Best regards,
-    //     The Fount One Team
-    //     `,
-    //   html: 
-    //     `<p>Hi ${firstName},</p>
-    //     <p>Thank you for registering with us! We're excited to have you on board.</p>
-    //     <p>To complete your registration and start using our services, please verify your email address by clicking the link below:</p>
-    //     <p><a href="${verificationUrl}">${verificationUrl}</a></p>
-    //     <p>If you did not sign up for this account, please disregard this email.</p>
-    //     <p>Thanks again, and we look forward to having you with us!</p>
-    //     <p>Best regards,<br>The Fount One Team</p>`,
-    // };
 
     // send verification email
     await sgMail.send(msg);
