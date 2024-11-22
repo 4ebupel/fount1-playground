@@ -40,6 +40,7 @@ export default function CompanyDetails() {
   const [socials, setSocials] = useState<{ platform_name: string, url: string }[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [website, setWebsite] = useState<string>('');
+  const [address, setAddress] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [companyData, setCompanyData] = useState<Company | null>(null);
@@ -52,7 +53,7 @@ export default function CompanyDetails() {
 
   const old_benefits = companyData?.benefits || []  ;
   const new_benefits = selectedBenefits;
-  const is_changed = companyData?.name !== companyData?.name || description !== companyData?.description || new_benefits.sort().join(',') !== old_benefits.sort().join(',');
+  const is_changed = companyData?.name !== companyData?.name || description !== companyData?.description || new_benefits.sort().join(',') !== old_benefits.sort().join(',') || address !== companyData?.billing_address;
   const old_socials = companyData?.social_media || [];
   const new_socials = socials;
   // eslint-disable-next-line max-len
@@ -79,6 +80,7 @@ export default function CompanyDetails() {
       setName(company.name || '');
       setSocials(company.social_media || []);
       setWebsite(company.website || '');
+      setAddress(company.billing_address || '');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');
       console.error('Error fetching company:', err);
@@ -109,7 +111,7 @@ export default function CompanyDetails() {
     try {
       const response = await fetch('/api/updateCompanyInfo', {
         method: 'POST',
-        body: JSON.stringify({ company_id: companyData?.id, name: companyData?.name === name ? "" : name, description: companyData?.description === description ? "" : description, selectedBenefits: companyData?.benefits === selectedBenefits ? [] : selectedBenefits }),
+        body: JSON.stringify({ company_id: companyData?.id, name: companyData?.name === name ? "" : name, description: companyData?.description === description ? "" : description, selectedBenefits: companyData?.benefits === selectedBenefits ? [] : selectedBenefits, address: companyData?.billing_address === address ? "" : address }),
       });
 
       const data = await response.json();
@@ -299,6 +301,16 @@ export default function CompanyDetails() {
                 id="company-name"
                 defaultValue={name}
                 onChange={(e) => setName(e.target.value)}
+              />
+            )}
+          </div>
+          <div>
+            <Label htmlFor="company-address">Company Address</Label>
+            {isLoading ? <Skeleton className="w-full h-8" /> : (
+              <Input
+                id="company-address"
+                defaultValue={address}
+                onChange={(e) => setAddress(e.target.value)}
               />
             )}
           </div>
