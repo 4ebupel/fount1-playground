@@ -9,6 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Eye, MoreHorizontal, Calendar, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type JobCardProps = {
   job: any;
@@ -17,8 +18,14 @@ type JobCardProps = {
 };
 
 export default function JobCard({ job, skillIcons, priorityColors }: JobCardProps) {
+  const router = useRouter();
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+    <Card
+      className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+      onClick={() => {
+        router.push(`/candidates?experienceLevel=${job.experienceLevel || ''}`);
+      }}
+    >
       <CardHeader className="p-4">
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl font-bold">{job.title}</CardTitle>

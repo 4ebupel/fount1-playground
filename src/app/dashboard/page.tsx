@@ -25,6 +25,7 @@ export default async function DashboardPage() {
       description: "We're looking for a talented Software Developer with expertise in Business Intelligence...",
       status: "open",
       priority: "urgent",
+      experienceLevel: "Middle",
     },
     {
       id: 2,
@@ -36,6 +37,7 @@ export default async function DashboardPage() {
       description: "Join our team as a Transformation Manager and lead our digital transformation initiatives...",
       status: "open",
       priority: "normal",
+      experienceLevel: "Middle",
     },
     {
       id: 3,
@@ -47,6 +49,7 @@ export default async function DashboardPage() {
       description: "We're seeking a skilled Front-End Developer to create stunning user interfaces...",
       status: "open",
       priority: "high",
+      experienceLevel: "Junior",
     },
     {
       id: 4,
@@ -58,6 +61,7 @@ export default async function DashboardPage() {
       description: "Join our backend team to build robust and scalable server-side applications...",
       status: "closed",
       priority: "normal",
+      experienceLevel: "Senior",
     },
   ];
       
