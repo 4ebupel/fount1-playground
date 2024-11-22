@@ -13,13 +13,14 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const apiClient = await ApiClientServer();
-    const { company_id, name, description, selectedBenefits } = body;
+    const { company_id, name, description, selectedBenefits, address } = body;
 
     const response = await apiClient.patch('/companies/update/details', {
       company_id,
       name,
       description,
       benefits: selectedBenefits,
+      address,
     });
 
     return NextResponse.json(response.data, { status: 200 });
