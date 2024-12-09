@@ -9,27 +9,21 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Eye, MoreHorizontal, Calendar, Users } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Job } from "../types/Job";
 
 type JobCardProps = {
-  job: any;
-  skillIcons: any;
-  priorityColors: any;
+  job: Job;
 };
 
-export default function JobCard({ job, skillIcons, priorityColors }: JobCardProps) {
-  const router = useRouter();
+export default function JobCard({ job }: JobCardProps) {
   return (
     <Card
       className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-      onClick={() => {
-        router.push(`/jobdetails?id=${job.id}&title=${job.title}&experienceLevel=${job.experienceLevel || ''}&requirements=${job.requirements.join(',')}&description=${job.description}&status=${job.status}&priority=${job.priority}&publishDate=${job.publishDate}&applicants=${job.applicants}`);
-      }}
     >
       <CardHeader className="p-4">
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl font-bold">{job.title}</CardTitle>
-          <Badge className={`${priorityColors[job.priority]} px-2 py-1 rounded-full text-xs`}>
+          <Badge className={`${job.priority === "urgent" ? "bg-red-500 text-white" : job.priority === "high" ? "bg-yellow-500 text-white" : "bg-green-500 text-white"} px-2 py-1 rounded-full text-xs`}>
             {job.priority.charAt(0).toUpperCase() + job.priority.slice(1)}
           </Badge>
         </div>
@@ -39,24 +33,22 @@ export default function JobCard({ job, skillIcons, priorityColors }: JobCardProp
           <Calendar className="mr-2 h-4 w-4" />
           <span className="font-semibold mr-2">Published:</span> 
           {' '}
-          {job.publishDate}
+          {new Date(job.created_at).toLocaleDateString()}
         </div>
         <div className="flex items-center text-sm text-muted-foreground mb-4">
           <Users className="mr-2 h-4 w-4" />
           <span className="font-semibold mr-2">Applicants:</span> 
           {' '}
-          {job.applicants}
+          {Math.floor(Math.random() * 100)}
         </div>
         <div className="flex flex-wrap gap-2 mb-4">
-          {/* @ts-expect-error  implicit any */}
-          {job.requirements.map((req, index) => (
+          {job.skills.map((skill, index) => (
             <Badge
               key={index}
               variant="secondary"
               className="px-2 py-1 bg-muted flex items-center space-x-1"
             >
-              {skillIcons[req] && <span className="mr-1">{skillIcons[req]}</span>}
-              <span>{req}</span>
+              <span>{skill}</span>
             </Badge>
           ))}
         </div>
@@ -73,22 +65,20 @@ export default function JobCard({ job, skillIcons, priorityColors }: JobCardProp
               View Details
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
             <DialogHeader>
               <DialogTitle>{job.title}</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <p>{job.description}</p>
               <div className="flex flex-wrap gap-2">
-                {/* @ts-expect-error  implicit any */}
-                {job.requirements.map((req, index) => (
+                {job.skills.map((skill, index) => (
                   <Badge
                     key={index}
                     variant="secondary"
                     className="px-2 py-1 bg-muted flex items-center space-x-1"
                   >
-                    {skillIcons[req] && <span className="mr-1">{skillIcons[req]}</span>}
-                    <span>{req}</span>
+                    <span>{skill}</span>
                   </Badge>
                 ))}
               </div>

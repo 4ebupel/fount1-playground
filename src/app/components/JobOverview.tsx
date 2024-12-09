@@ -18,10 +18,10 @@ import {
   Info, 
   Heart,
   Clipboard,
-  Target
+  Target,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const dummyJobData = {
@@ -40,13 +40,13 @@ const dummyJobData = {
   status: "Draft",
 };
 
-const statusStyles = {
-  'Draft': 'bg-yellow-100 text-yellow-800',
-  'Published': 'bg-green-100 text-green-800',
-  'Closed': 'bg-red-100 text-red-800',
-};
+// const statusStyles = {
+//   'Draft': 'bg-yellow-100 text-yellow-800',
+//   'Published': 'bg-green-100 text-green-800',
+//   'Closed': 'bg-red-100 text-red-800',
+// };
 
-function JobOverview() {
+export default function JobOverview() {
   const searchParams = useSearchParams();
   const [isEditing, setIsEditing] = useState(false);
   
@@ -87,33 +87,33 @@ function JobOverview() {
                 { 
                   icon: <MapPin className="h-5 w-5 text-gray-600" />, 
                   label: "Location", 
-                  value: initialJobData.location 
+                  value: initialJobData.location, 
                 },
                 { 
                   icon: <Briefcase className="h-5 w-5 text-gray-600" />, 
                   label: "Employment", 
-                  value: initialJobData.employmentType 
+                  value: initialJobData.employmentType, 
                 },
                 { 
                   icon: <Clock className="h-5 w-5 text-gray-600" />, 
                   label: "Experience", 
-                  value: initialJobData.experienceLevel 
+                  value: initialJobData.experienceLevel, 
                 },
                 { 
                   icon: <DollarSign className="h-5 w-5 text-gray-600" />, 
                   label: "Salary", 
-                  value: `€${initialJobData.salaryRange[0]} - €${initialJobData.salaryRange[1]}` 
+                  value: `€${initialJobData.salaryRange[0]} - €${initialJobData.salaryRange[1]}`, 
                 },
                 { 
                   icon: <Calendar className="h-5 w-5 text-gray-600" />, 
                   label: "Published", 
-                  value: initialJobData.publishDate 
+                  value: initialJobData.publishDate, 
                 },
                 { 
                   icon: <Users className="h-5 w-5 text-gray-600" />, 
                   label: "Applicants", 
-                  value: initialJobData.applicants 
-                }
+                  value: initialJobData.applicants, 
+                },
               ].map((item, index) => (
                 <div key={index} className="flex items-center gap-3">
                   {item.icon}
@@ -232,6 +232,3 @@ function JobOverview() {
     </Card>
   );
 }
-
-export default JobOverview;
-
