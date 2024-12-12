@@ -6,19 +6,146 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { User } from "../types/UserInitialTest";
 import { Experience } from "../types/Experience";
-import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Text,
-} from "recharts";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import { ExperienceDetailsDialog } from "./ExperienceDetailsDialog";
 import { HoverCard, HoverCardContent } from '@/components/ui/hover-card';
 import { HoverCardTrigger } from '@radix-ui/react-hover-card';
+
+type Skill = {
+  name: string;
+  rating: number;
+};
+
+const RadarSkillChart = ({ skills }: { skills: Skill[] }) => {
+  const total = Math.min(skills.length, 5);
+  const levels = 7; // Number of rating levels
+  const radius = 150;
+  const center = 200;
+
+  // Helper function to split long skill names
+  const splitSkillName = (name: string) => {
+    if (name.length <= 12) {return { line1: name, line2: '' };}
+    
+    const words = name.split(' ');
+    if (words.length === 1) {
+      // If it's a single long word, split in the middle
+      const midpoint = Math.ceil(name.length / 2);
+      return {
+        line1: name.slice(0, midpoint),
+        line2: name.slice(midpoint),
+      };
+    }
+
+    // Try to split into two roughly equal parts
+    if (words.length > 1) {
+      const midIndex = Math.ceil(words.length / 2);
+      return {
+        line1: words.slice(0, midIndex).join(' '),
+        line2: words.slice(midIndex).join(' '),
+      };
+    }
+
+    return { line1: name, line2: '' };
+  };
+
+  return (
+    <svg width="100%" height="300" viewBox="-25 -25 450 450" className="mx-auto">
+      {[...Array(levels)].map((_, i) => (
+        <circle
+          key={i}
+          cx={center}
+          cy={center}
+          r={((i + 1) / levels) * radius}
+          fill="none"
+          stroke="#8257D7"
+          strokeWidth="1"
+          opacity={0.2}
+        />
+      ))}
+
+      {skills.slice(0, total).map((skill, index) => {
+        const angle = (index / total) * 2 * Math.PI - Math.PI / 2;
+        const xOuter = center + radius * Math.cos(angle);
+        const yOuter = center + radius * Math.sin(angle);
+        const skillRadius = (radius * skill.rating) / levels;
+        const x = center + skillRadius * Math.cos(angle);
+        const y = center + skillRadius * Math.sin(angle);
+
+        const labelRadius = radius + 30;
+        const labelX = center + labelRadius * Math.cos(angle);
+        const labelY = center + labelRadius * Math.sin(angle);
+
+        const { line1, line2 } = splitSkillName(skill.name);
+
+        return (
+          <g key={skill.name}>
+            <line
+              x1={center}
+              y1={center}
+              x2={xOuter}
+              y2={yOuter}
+              stroke="#8257D7"
+              strokeWidth="1"
+              opacity={0.5}
+            />
+
+            <circle
+              cx={x}
+              cy={y}
+              r="6"
+              fill="#410293"
+              stroke="#fff"
+              strokeWidth="1"
+              className="skill-point transition-transform duration-300 hover:scale-125"
+            >
+              <title>{`${skill.name}: ${skill.rating}/7`}</title>
+            </circle>
+
+            <text
+              x={labelX}
+              y={labelY - (line2 ? 8 : 0)}
+              fontSize="12"
+              fontWeight="bold"
+              textAnchor={labelX > center ? "start" : "end"}
+              alignmentBaseline="middle"
+              fill="#410293"
+            >
+              {line1}
+            </text>
+            {line2 && (
+              <text
+                x={labelX}
+                y={labelY + 8}
+                fontSize="12"
+                fontWeight="bold"
+                textAnchor={labelX > center ? "start" : "end"}
+                alignmentBaseline="middle"
+                fill="#410293"
+              >
+                {line2}
+              </text>
+            )}
+          </g>
+        );
+      })}
+
+      <polygon
+        points={skills.slice(0, total).map((skill, index) => {
+          const angle = (index / total) * 2 * Math.PI - Math.PI / 2;
+          const skillRadius = (radius * skill.rating) / levels;
+          const x = center + skillRadius * Math.cos(angle);
+          const y = center + skillRadius * Math.sin(angle);
+          return `${x},${y}`;
+        }).join(' ')}
+        fill="#410293"
+        fillOpacity="0.2"
+        stroke="#410293"
+        strokeWidth="2"
+      />
+    </svg>
+  );
+};
 
 interface CandidateDetailsProps {
   selectedCandidate: User | null;
@@ -42,32 +169,33 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
     .filter((talent) => talent.talent_type === 'software_skill' || talent.talent_type === 'professional_skill')
     .sort((a, b) => parseInt(b.self_verified_level) - parseInt(a.self_verified_level));
 
-  const radarChartData = sortedSkillsTalents
+  const radarChartData: Skill[] = sortedSkillsTalents
+    .slice(0, 5)
     .map((talent) => ({
       name: talent.talent_title,
-      value: parseInt(talent.self_verified_level),
-    }))
+      rating: parseInt(talent.self_verified_level),
+    }));
 
-  const CustomTick = ({ x, y, payload }: any) => {
-    const truncateText = (text: string, maxLength: number) => {
-      if (text.length > maxLength) {
-        return text.slice(0, maxLength - 3) + '...';
-      }
-      return text;
-    };
+  // const CustomTick = ({ x, y, payload }: any) => {
+  //   const truncateText = (text: string, maxLength: number) => {
+  //     if (text.length > maxLength) {
+  //       return text.slice(0, maxLength - 3) + '...';
+  //     }
+  //     return text;
+  //   };
 
-    return (
-      <Text
-        x={x}
-        y={y}
-        textAnchor="middle"
-        verticalAnchor="middle"
-        style={{ fontSize: 12, fill: 'currentColor' }}
-      >
-        {truncateText(payload.value, 18)}
-      </Text>
-    );
-  };
+  //   return (
+  //     <Text
+  //       x={x}
+  //       y={y}
+  //       textAnchor="middle"
+  //       verticalAnchor="middle"
+  //       style={{ fontSize: 12, fill: 'currentColor' }}
+  //     >
+  //       {truncateText(payload.value, 18)}
+  //     </Text>
+  //   );
+  // };
 
   const isLanguageTestAvailable = selectedCandidate.standardized_documents.filter((doc) => doc.type === 'Languages').length > 0;
   const isCertificatesAvailable = selectedCandidate.standardized_documents.filter((doc) => doc.type === 'Certificates').length > 0;
@@ -205,31 +333,13 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
           </div>
         )}
         {radarChartData.length > 0 && (
-          <div className="flex flex-col items-stretch">
-            <h3 className="font-semibold mb-2 text-left">Main Focus</h3>
-            <div className="flex justify-center items-center w-full h-[400px]">
-              <RadarChart
-                cx="50%"
-                cy="50%"
-                outerRadius="80%"
-                width={400}
-                height={400}
-                data={radarChartData}
-              >
-                <PolarGrid />
-                <PolarAngleAxis dataKey="name" tick={<CustomTick />} />
-                <PolarRadiusAxis domain={[0, 7]} />
-                <Radar
-                  name="User"
-                  dataKey="value"
-                  stroke="#8884d8"
-                  fill="#8884d8"
-                  fillOpacity={0.6}
-                />
-              </RadarChart>
+          <div className="flex flex-col items-stretch mt-6">
+            <h2 className="font-semibold mb-2 text-left">Skills Radar</h2>
+            <div className="flex justify-center items-center w-full h-[300px]">
+              <RadarSkillChart skills={radarChartData} />
             </div>
           </div>
-        )}        
+        )}
       </CardContent>
       <ExperienceDetailsDialog
         experience={selectedExperience}

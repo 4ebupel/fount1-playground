@@ -4,6 +4,7 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import { SessionProvider } from "next-auth/react"
 import { UserProvider } from './contexts/UserContext'
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,6 +21,7 @@ export default function RootLayout({
         <SessionProvider>
           <UserProvider>
             {children}
+            <Toaster />
           </UserProvider>
         </SessionProvider>
       </body>

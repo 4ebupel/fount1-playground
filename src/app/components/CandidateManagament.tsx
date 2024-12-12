@@ -11,7 +11,7 @@ import Loader from './Loader'
 import { useSearchParams } from 'next/navigation'
 
 export default function CandidateManagement() {
-  const [isFilterBarOpen, setIsFilterBarOpen] = useState(true);
+  const [isFilterBarOpen, setIsFilterBarOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,6 +23,7 @@ export default function CandidateManagement() {
     minSalary: number;
     maxSalary: number;
     availableIn?: number | undefined;
+    jobId?: number | undefined;
   }>({
     skills: [],
     experienceLevel: [],
@@ -31,6 +32,7 @@ export default function CandidateManagement() {
     minSalary: 0,
     maxSalary: 200000,
     availableIn: undefined,
+    jobId: undefined,
   });
   const searchParams = useSearchParams();
 
@@ -44,6 +46,7 @@ export default function CandidateManagement() {
       minSalary: Number(searchParams.get('minSalary')) || 0,
       maxSalary: Number(searchParams.get('maxSalary')) || 200000,
       availableIn: searchParams.get('availableIn') !== null ? Number(searchParams.get('availableIn')) : undefined,
+      jobId: searchParams.get('jobId') !== null ? Number(searchParams.get('jobId')) : undefined,
     };
     setFilters(newFilters);
 
@@ -55,6 +58,7 @@ export default function CandidateManagement() {
       minSalary: number;
       maxSalary: number;
       availableIn: number | undefined;
+      jobId: number | undefined;
     }): Promise<User[]> {
       const queryParams = new URLSearchParams();
 
@@ -65,6 +69,7 @@ export default function CandidateManagement() {
       if (currentFilters.minSalary) { queryParams.set('minSalary', currentFilters.minSalary.toString()); }
       if (currentFilters.maxSalary) { queryParams.set('maxSalary', currentFilters.maxSalary.toString()); }
       if (currentFilters.availableIn !== undefined) { queryParams.set('availableIn', currentFilters.availableIn.toString()); }
+      if (currentFilters.jobId !== undefined) { queryParams.set('jobId', currentFilters.jobId.toString()); }
 
       const fetchedUsers = await getCandidates(queryParams.toString());
       return fetchedUsers;

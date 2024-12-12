@@ -9,27 +9,29 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Eye, MoreHorizontal, Calendar, Users } from "lucide-react";
+import { Job } from "../types/Job";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-type JobCardProps = {
-  job: any;
-  skillIcons: any;
-  priorityColors: any;
-};
-
-export default function JobCard({ job, skillIcons, priorityColors }: JobCardProps) {
+export default function JobCard(job: Job) {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleNavigate = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    router.push(`/jobdetails?jobId=${job.id}`);
+  };
+
   return (
     <Card
-      className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-      onClick={() => {
-        router.push(`/candidates?experienceLevel=${job.experienceLevel || ''}`);
-      }}
+      className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
     >
       <CardHeader className="p-4">
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl font-bold">{job.title}</CardTitle>
-          <Badge className={`${priorityColors[job.priority]} px-2 py-1 rounded-full text-xs`}>
+          <Badge className={`${job.priority === "urgent" ? "bg-red-500 text-white" : job.priority === "high" ? "bg-yellow-500 text-white" : "bg-green-500 text-white"} px-2 py-1 rounded-full text-xs`}>
             {job.priority.charAt(0).toUpperCase() + job.priority.slice(1)}
           </Badge>
         </div>
@@ -39,24 +41,22 @@ export default function JobCard({ job, skillIcons, priorityColors }: JobCardProp
           <Calendar className="mr-2 h-4 w-4" />
           <span className="font-semibold mr-2">Published:</span> 
           {' '}
-          {job.publishDate}
+          {new Date(job.created_at).toLocaleDateString()}
         </div>
         <div className="flex items-center text-sm text-muted-foreground mb-4">
           <Users className="mr-2 h-4 w-4" />
           <span className="font-semibold mr-2">Applicants:</span> 
           {' '}
-          {job.applicants}
+          {Math.floor(Math.random() * 100)}
         </div>
         <div className="flex flex-wrap gap-2 mb-4">
-          {/* @ts-expect-error  implicit any */}
-          {job.requirements.map((req, index) => (
+          {job.skills.map((skill, index) => (
             <Badge
               key={index}
               variant="secondary"
               className="px-2 py-1 bg-muted flex items-center space-x-1"
             >
-              {skillIcons[req] && <span className="mr-1">{skillIcons[req]}</span>}
-              <span>{req}</span>
+              <span>{skill.title}</span>
             </Badge>
           ))}
         </div>
@@ -73,36 +73,41 @@ export default function JobCard({ job, skillIcons, priorityColors }: JobCardProp
               View Details
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
             <DialogHeader>
               <DialogTitle>{job.title}</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <p>{job.description}</p>
               <div className="flex flex-wrap gap-2">
-                {/* @ts-expect-error  implicit any */}
-                {job.requirements.map((req, index) => (
+                {job.skills.map((skill, index) => (
                   <Badge
                     key={index}
                     variant="secondary"
                     className="px-2 py-1 bg-muted flex items-center space-x-1"
                   >
-                    {skillIcons[req] && <span className="mr-1">{skillIcons[req]}</span>}
-                    <span>{req}</span>
+                    <span>{skill.title}</span>
                   </Badge>
                 ))}
               </div>
             </div>
           </DialogContent>
         </Dialog>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full ml-2 rounded-md hover:bg-muted transition-colors duration-200"
+        <Link
+          href={`/jobdetails?jobId=${job.id}`}
+          onClick={handleNavigate}
+          // eslint-disable-next-line max-len
+          className={`w-full ml-2 rounded-md hover:bg-muted transition-colors duration-200 flex items-center justify-center h-10 border border-muted ${
+            isLoading ? 'opacity-70 cursor-not-allowed' : ''
+          }`}
         >
-          <MoreHorizontal className="mr-2 h-4 w-4" />
-          More Options
-        </Button>
+          {isLoading ? (
+            <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2" />
+          ) : (
+            <MoreHorizontal className="mr-2 h-4 w-4" />
+          )}
+          {isLoading ? 'Loading...' : 'More Options'}
+        </Link>
       </CardFooter>
     </Card>
   );

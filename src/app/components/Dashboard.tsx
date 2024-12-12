@@ -9,63 +9,43 @@ import { useUser } from "@/app/contexts/UserContext";
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import "react-loading-skeleton/dist/skeleton.css";
+import { getJobs } from "../api/getJobs";
+import { Job } from "../types/Job";
 
-type Props = {
-  jobListings: any[];
-  skillIcons: any;
-  priorityColors: any;
-};
-
-export default function StartupJobDashboard({
-  jobListings,
-  skillIcons,
-  priorityColors,
-}: Props) {
+export default function Dashboard() {
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [activeSegment, setActiveSegment] = useState("open");
   const [sortBy, setSortBy] = useState("newest");
   const [filterTag, setFilterTag] = useState("");
-  const { userData, setUserData } = useUser();
+  const { userData } = useUser();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/api/me', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+    if (userData?.employer_profile?.companies) {
+      getJobs(userData?.employer_profile?.companies[0].id || 0)
+        .then((jobs) => {
+          setJobs(jobs);
+        })
+        .catch((error) => {
+          console.error('Failed to fetch jobs:', error);
+        })
+        .finally(() => {
+          setLoading(false);
         });
+    }
+  }, [userData?.employer_profile?.companies]);
 
-        if (!response.ok) {
-          throw new Error(`Error: ${response}`);
-        }
-
-        const data = await response.json();
-        setUserData(data);
-      } catch (error) {
-        console.error('Failed to fetch user data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [setUserData]);
-
-  const filteredJobs = jobListings.filter(
+  const filteredJobs = jobs.filter(
     (job) =>
-      (activeSegment === "open" ? job.status === "open" : job.status === "closed") &&
-      (filterTag === "" || job.requirements.includes(filterTag))
+      (activeSegment === "open" ? job.status === "Published" : job.status === "Staffed") &&
+      (filterTag === "" || job.skills.some((skill) => skill.title.toLowerCase().includes(filterTag.toLowerCase())))
   );
 
   const priorityOrder: { [key: string]: number } = { urgent: 3, high: 2, normal: 1 };
 
   const sortedJobs = [...filteredJobs].sort((a, b) => {
     if (sortBy === "newest") {
-      return new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime();
-    } else if (sortBy === "applicants") {
-      return b.applicants - a.applicants;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     } else {
       return priorityOrder[b.priority] - priorityOrder[a.priority];
     }
@@ -101,7 +81,7 @@ export default function StartupJobDashboard({
       <FiltersDropdown sortBy={sortBy} setSortBy={setSortBy} filterTag={filterTag} setFilterTag={setFilterTag} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {sortedJobs.map((job) => (
-          <JobCard key={job.id} job={job} skillIcons={skillIcons} priorityColors={priorityColors} />
+          <JobCard key={job.id} {...job} />
         ))}
       </div>
     </div>
