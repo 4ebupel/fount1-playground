@@ -6,14 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { User } from "../types/UserInitialTest";
 import { Experience } from "../types/Experience";
-import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Text,
-} from "recharts";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import { ExperienceDetailsDialog } from "./ExperienceDetailsDialog";
@@ -33,7 +25,7 @@ const RadarSkillChart = ({ skills }: { skills: Skill[] }) => {
 
   // Helper function to split long skill names
   const splitSkillName = (name: string) => {
-    if (name.length <= 12) return { line1: name, line2: '' };
+    if (name.length <= 12) {return { line1: name, line2: '' };}
     
     const words = name.split(' ');
     if (words.length === 1) {
@@ -41,7 +33,7 @@ const RadarSkillChart = ({ skills }: { skills: Skill[] }) => {
       const midpoint = Math.ceil(name.length / 2);
       return {
         line1: name.slice(0, midpoint),
-        line2: name.slice(midpoint)
+        line2: name.slice(midpoint),
       };
     }
 
@@ -50,7 +42,7 @@ const RadarSkillChart = ({ skills }: { skills: Skill[] }) => {
       const midIndex = Math.ceil(words.length / 2);
       return {
         line1: words.slice(0, midIndex).join(' '),
-        line2: words.slice(midIndex).join(' ')
+        line2: words.slice(midIndex).join(' '),
       };
     }
 
@@ -184,26 +176,26 @@ export default function CandidateDetails({ selectedCandidate }: CandidateDetails
       rating: parseInt(talent.self_verified_level),
     }));
 
-  const CustomTick = ({ x, y, payload }: any) => {
-    const truncateText = (text: string, maxLength: number) => {
-      if (text.length > maxLength) {
-        return text.slice(0, maxLength - 3) + '...';
-      }
-      return text;
-    };
+  // const CustomTick = ({ x, y, payload }: any) => {
+  //   const truncateText = (text: string, maxLength: number) => {
+  //     if (text.length > maxLength) {
+  //       return text.slice(0, maxLength - 3) + '...';
+  //     }
+  //     return text;
+  //   };
 
-    return (
-      <Text
-        x={x}
-        y={y}
-        textAnchor="middle"
-        verticalAnchor="middle"
-        style={{ fontSize: 12, fill: 'currentColor' }}
-      >
-        {truncateText(payload.value, 18)}
-      </Text>
-    );
-  };
+  //   return (
+  //     <Text
+  //       x={x}
+  //       y={y}
+  //       textAnchor="middle"
+  //       verticalAnchor="middle"
+  //       style={{ fontSize: 12, fill: 'currentColor' }}
+  //     >
+  //       {truncateText(payload.value, 18)}
+  //     </Text>
+  //   );
+  // };
 
   const isLanguageTestAvailable = selectedCandidate.standardized_documents.filter((doc) => doc.type === 'Languages').length > 0;
   const isCertificatesAvailable = selectedCandidate.standardized_documents.filter((doc) => doc.type === 'Certificates').length > 0;
