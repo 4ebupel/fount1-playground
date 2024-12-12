@@ -54,6 +54,7 @@ export function ModernTabs({ jobDetails }: ModernTabsProps) {
       </div>
       <nav
         className="relative flex items-center gap-1 rounded-full p-1 bg-muted"
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
         role="tablist"
         aria-label="Job Management Tabs"
       >
@@ -102,7 +103,11 @@ export function ModernTabs({ jobDetails }: ModernTabsProps) {
               >
                 <h2 className="text-xl font-semibold mb-4">{tab.label}</h2>
                 <p className="text-muted-foreground">
-                  Content for {tab.label} goes here. This is a placeholder content area that
+                  Content for 
+                  {' '}
+                  {tab.label}
+                  {' '}
+                  goes here. This is a placeholder content area that
                   demonstrates the tab panel transition.
                 </p>
               </motion.div>
@@ -113,4 +118,3 @@ export function ModernTabs({ jobDetails }: ModernTabsProps) {
     </div>
   )
 }
-
