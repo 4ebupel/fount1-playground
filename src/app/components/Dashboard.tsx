@@ -38,7 +38,7 @@ export default function Dashboard() {
   const filteredJobs = jobs.filter(
     (job) =>
       (activeSegment === "open" ? job.status === "Published" : job.status === "Staffed") &&
-      (filterTag === "" || job.skills.includes(filterTag))
+      (filterTag === "" || job.skills.some((skill) => skill.title.toLowerCase().includes(filterTag.toLowerCase())))
   );
 
   const priorityOrder: { [key: string]: number } = { urgent: 3, high: 2, normal: 1 };
@@ -81,7 +81,7 @@ export default function Dashboard() {
       <FiltersDropdown sortBy={sortBy} setSortBy={setSortBy} filterTag={filterTag} setFilterTag={setFilterTag} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {sortedJobs.map((job) => (
-          <JobCard key={job.id} job={job} />
+          <JobCard key={job.id} {...job} />
         ))}
       </div>
     </div>

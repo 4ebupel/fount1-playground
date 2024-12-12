@@ -10,12 +10,20 @@ import {
 } from "@/components/ui/dialog";
 import { Eye, MoreHorizontal, Calendar, Users } from "lucide-react";
 import { Job } from "../types/Job";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-type JobCardProps = {
-  job: Job;
-};
+export default function JobCard(job: Job) {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
-export default function JobCard({ job }: JobCardProps) {
+  const handleNavigate = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    router.push(`/jobdetails?jobId=${job.id}`);
+  };
+
   return (
     <Card
       className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
@@ -48,7 +56,7 @@ export default function JobCard({ job }: JobCardProps) {
               variant="secondary"
               className="px-2 py-1 bg-muted flex items-center space-x-1"
             >
-              <span>{skill}</span>
+              <span>{skill.title}</span>
             </Badge>
           ))}
         </div>
@@ -78,21 +86,28 @@ export default function JobCard({ job }: JobCardProps) {
                     variant="secondary"
                     className="px-2 py-1 bg-muted flex items-center space-x-1"
                   >
-                    <span>{skill}</span>
+                    <span>{skill.title}</span>
                   </Badge>
                 ))}
               </div>
             </div>
           </DialogContent>
         </Dialog>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full ml-2 rounded-md hover:bg-muted transition-colors duration-200"
+        <Link
+          href={`/jobdetails?jobId=${job.id}`}
+          onClick={handleNavigate}
+          // eslint-disable-next-line max-len
+          className={`w-full ml-2 rounded-md hover:bg-muted transition-colors duration-200 flex items-center justify-center h-10 border border-muted ${
+            isLoading ? 'opacity-70 cursor-not-allowed' : ''
+          }`}
         >
-          <MoreHorizontal className="mr-2 h-4 w-4" />
-          More Options
-        </Button>
+          {isLoading ? (
+            <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2" />
+          ) : (
+            <MoreHorizontal className="mr-2 h-4 w-4" />
+          )}
+          {isLoading ? 'Loading...' : 'More Options'}
+        </Link>
       </CardFooter>
     </Card>
   );

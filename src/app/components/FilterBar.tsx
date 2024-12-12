@@ -26,15 +26,16 @@ interface FilterBarProps {
     minSalary: number;
     maxSalary: number;
     availableIn?: number | undefined;
+    jobId?: number | undefined;
   };
   setFilters: (filters: FilterBarProps['filters']) => void;
 }
 
-export default function FilterBar({ 
-  isOpen, 
-  setIsOpen, 
-  filters, 
-  setFilters 
+export default function FilterBar({
+  isOpen,
+  setIsOpen,
+  filters,
+  setFilters,
 }: FilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -76,12 +77,13 @@ export default function FilterBar({
 
     // Update URL parameters
     const searchParams = new URLSearchParams();
-    if (localFilters.skills.length) {searchParams.set('skills', localFilters.skills.join(','));}
-    if (localFilters.experienceLevel.length) {searchParams.set('experienceLevel', localFilters.experienceLevel.join(','));}
-    if (localFilters.minRating) {searchParams.set('minRating', localFilters.minRating.toString());}
-    if (localFilters.minSalary) {searchParams.set('minSalary', localFilters.minSalary.toString());}
-    if (localFilters.maxSalary) {searchParams.set('maxSalary', localFilters.maxSalary.toString());}
-    if (localFilters.availableIn !== undefined) {searchParams.set('availableIn', localFilters.availableIn.toString());}
+    if (localFilters.skills.length) { searchParams.set('skills', localFilters.skills.join(',')); }
+    if (localFilters.experienceLevel.length) { searchParams.set('experienceLevel', localFilters.experienceLevel.join(',')); }
+    if (localFilters.minRating) { searchParams.set('minRating', localFilters.minRating.toString()); }
+    if (localFilters.minSalary) { searchParams.set('minSalary', localFilters.minSalary.toString()); }
+    if (localFilters.maxSalary) { searchParams.set('maxSalary', localFilters.maxSalary.toString()); }
+    if (localFilters.availableIn !== undefined) { searchParams.set('availableIn', localFilters.availableIn.toString()); }
+    if (localFilters.jobId !== undefined) { searchParams.set('jobId', localFilters.jobId.toString()); }
 
     router.push(`${pathname}?${searchParams.toString()}`);
 
@@ -141,23 +143,24 @@ export default function FilterBar({
       filters.location !== '' ||
       filters.minSalary > 0 ||
       filters.maxSalary < 200000 ||
-      filters.availableIn !== undefined
+      filters.availableIn !== undefined ||
+      filters.jobId !== undefined
     );
   };
 
   return (
-    <motion.aside 
+    <motion.aside
       initial={false}
-      animate={{ 
+      animate={{
         width: isOpen ? '16rem' : '2rem', // Tailwind w-64 vs w-8
-        transition: { 
-          duration: 0.3, 
-          ease: "easeInOut" 
-        }
+        transition: {
+          duration: 0.3,
+          ease: "easeInOut",
+        },
       }}
       className="flex flex-col transition-all duration-300 relative"
     >
-      <Card 
+      <Card
         className={`mb-4 sticky top-0 overflow-hidden transition-all duration-300 
           ${isOpen ? 'w-full' : 'w-8 ml-0 shadow-lg'}`}
       >
@@ -173,19 +176,29 @@ export default function FilterBar({
               <CardContent className="p-4">
                 <h2 className="font-semibold mb-4 flex items-center justify-between">
                   Filters
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setIsOpen(false)}
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </h2>
-                
+
                 <div className="space-y-4 relative">
+                  {filters.jobId !== undefined && (
+                    <div className="flex flex-row items-center justify-start gap-2">
+                      <h2 className="text-sm font-medium">Filter for a Job</h2>
+                      <Checkbox
+                        id="jobId"
+                        checked={localFilters.jobId !== undefined}
+                        onCheckedChange={(checked) => handleLocalFilterChange({ jobId: checked ? filters.jobId : undefined })}
+                      />
+                    </div>
+                  )}
                   {/* Search Skills */}
                   <div>
-                    <label className="text-sm font-medium">Search Skills</label>
+                    <h2 className="text-sm font-medium">Search Skills</h2>
                     <div className="flex flex-row items-center justify-between gap-2">
                       <Input
                         placeholder="Search skills"
@@ -198,20 +211,25 @@ export default function FilterBar({
                     {suggestions.length > 0 && (
                       <div className="absolute z-10 w-full border border-gray-300 mt-1 rounded-md shadow-lg bg-white">
                         {suggestions.map((suggestion) => (
-                          <div
+                          <button
                             key={suggestion.skill_id}
-                            className="p-2 cursor-pointer hover:bg-gray-200"
+                            className="w-full text-left p-2 cursor-pointer hover:bg-gray-200"
                             onClick={() => handleSuggestionClick(suggestion.skill_title)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleSuggestionClick(suggestion.skill_title)
+                              }
+                            }}
                           >
                             {suggestion.skill_title}
-                          </div>
+                          </button>
                         ))}
                       </div>
                     )}
                   </div>
                   {/* Selected Skills */}
                   <div>
-                    <label className="text-sm font-medium">Selected Skills</label>
+                    <h2 className="text-sm font-medium">Selected Skills</h2>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {localFilters.skills.map((skill) => (
                         <Badge key={skill} variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground" onClick={() => handleSkillRemove(skill)}>
@@ -222,7 +240,7 @@ export default function FilterBar({
                   </div>
                   {/* Experience Level */}
                   <div>
-                    <label className="text-sm font-medium">Experience Level</label>
+                    <h2 className="text-sm font-medium">Experience Level</h2>
                     <div className="flex items-center space-x-2 mt-1">
                       <Checkbox
                         id="junior"
@@ -250,7 +268,7 @@ export default function FilterBar({
                   </div>
                   {/* Available On */}
                   <div>
-                    <label className="text-sm font-medium">Available On</label>
+                    <h2 className="text-sm font-medium">Available On</h2>
                     <Popover
                       open={isCalendarOpen}
                       onOpenChange={setIsCalendarOpen}
@@ -305,7 +323,7 @@ export default function FilterBar({
                   </div>
                   {/* Salary Range */}
                   <div>
-                    <label className="text-sm font-medium">Salary Range</label>
+                    <h2 className="text-sm font-medium">Salary Range</h2>
                     <div className="mt-2 flex items-center space-x-2 flex-col w-full space-y-2 mb-10">
                       <div className="flex flex-row w-full justify-between">
                         <p>0</p>
@@ -340,19 +358,19 @@ export default function FilterBar({
               transition={{ duration: 0.2 }}
               className="h-full flex items-center justify-center p-1 relative"
             >
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setIsOpen(true)}
                 className="h-full w-full relative"
               >
                 <Filter className="h-4 w-4" />
                 {hasActiveFilters() && (
-                  <span 
+                  <span
                     className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"
-                    style={{ 
+                    style={{
                       transform: 'translate(25%, -25%)',
-                      boxShadow: '0 0 0 1px white'
+                      boxShadow: '0 0 0 1px white',
                     }}
                   />
                 )}

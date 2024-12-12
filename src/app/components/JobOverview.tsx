@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -20,50 +19,14 @@ import {
   Clipboard,
   Target,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Job } from "../types/Job";
+import { useState } from "react";
 
-const dummyJobData = {
-  title: "Software Developer - Business Intelligence",
-  keyResponsibilities: [
-    "Develop and maintain data pipelines",
-    "Collaborate with data scientists and analysts",
-    "Optimize database performance",
-  ],
-  employmentType: "Full Time",
-  location: "Berlin (60% Remote)",
-  salaryRange: [60000, 85000],
-  benefits: ["Health Insurance", "Remote Work Option", "Paid Time Off"],
-  skills: ["Python", "SQL", "Data Modeling"],
-  startingDate: "2023-01-10",
-  status: "Draft",
-};
-
-// const statusStyles = {
-//   'Draft': 'bg-yellow-100 text-yellow-800',
-//   'Published': 'bg-green-100 text-green-800',
-//   'Closed': 'bg-red-100 text-red-800',
-// };
-
-export default function JobOverview() {
-  const searchParams = useSearchParams();
+export default function JobOverview({ jobData }: { jobData: Job | null }) {
   const [isEditing, setIsEditing] = useState(false);
-  
-  const initialJobData = {
-    ...dummyJobData,
-    title: searchParams.get('title') || dummyJobData.title,
-    id: searchParams.get('id') || "JOB-001",
-    requirements: searchParams.get('requirements')?.split(',') || dummyJobData.skills,
-    description: searchParams.get('description') || "",
-    status: searchParams.get('status') || dummyJobData.status,
-    priority: searchParams.get('priority') || "normal",
-    publishDate: searchParams.get('publishDate') || dummyJobData.startingDate,
-    applicants: searchParams.get('applicants') || "0",
-    experienceLevel: searchParams.get('experienceLevel') || "Mid-Level",
-  };
-
-  const [selectedBenefits, setSelectedBenefits] = useState<string[]>(initialJobData.benefits);
+  const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
   const [customBenefit, setCustomBenefit] = useState<string>('');
 
   const handleAddBenefit = () => {
@@ -87,32 +50,32 @@ export default function JobOverview() {
                 { 
                   icon: <MapPin className="h-5 w-5 text-gray-600" />, 
                   label: "Location", 
-                  value: initialJobData.location, 
+                  value: jobData?.locations[0] || "", 
                 },
                 { 
                   icon: <Briefcase className="h-5 w-5 text-gray-600" />, 
                   label: "Employment", 
-                  value: initialJobData.employmentType, 
+                  value: jobData?.employment_type || "", 
                 },
                 { 
                   icon: <Clock className="h-5 w-5 text-gray-600" />, 
                   label: "Experience", 
-                  value: initialJobData.experienceLevel, 
+                  value: jobData?.experience_level || "", 
                 },
                 { 
                   icon: <DollarSign className="h-5 w-5 text-gray-600" />, 
                   label: "Salary", 
-                  value: `€${initialJobData.salaryRange[0]} - €${initialJobData.salaryRange[1]}`, 
+                  value: `€${jobData?.salary_range.start} - €${jobData?.salary_range.end}`, 
                 },
                 { 
                   icon: <Calendar className="h-5 w-5 text-gray-600" />, 
                   label: "Published", 
-                  value: initialJobData.publishDate, 
+                  value: jobData?.created_at || "", 
                 },
                 { 
                   icon: <Users className="h-5 w-5 text-gray-600" />, 
                   label: "Applicants", 
-                  value: initialJobData.applicants, 
+                  value: Math.floor(Math.random() * 1000),
                 },
               ].map((item, index) => (
                 <div key={index} className="flex items-center gap-3">
@@ -161,8 +124,8 @@ export default function JobOverview() {
               Key Responsibilities
             </h4>
             <ul className="list-disc pl-5 space-y-1">
-              {initialJobData.keyResponsibilities.map((responsibility, index) => (
-                <li key={index} className="text-muted-foreground">{responsibility}</li>
+              {jobData?.responsibilities.map((responsibility, index) => (
+                <li key={index} className="text-muted-foreground">{responsibility.DWA_Title}</li>
               ))}
             </ul>
           </div>
@@ -183,9 +146,9 @@ export default function JobOverview() {
               </TooltipProvider>
             </h4>
             <div className="flex flex-wrap gap-2">
-              {initialJobData.requirements.map((skill, index) => (
+              {jobData?.skills.map((skill, index) => (
                 <Badge key={index} variant="secondary">
-                  {skill}
+                  {skill.title}
                 </Badge>
               ))}
             </div>
