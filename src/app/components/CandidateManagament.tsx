@@ -11,9 +11,7 @@ import Loader from './Loader'
 import { useSearchParams } from 'next/navigation'
 import { Job } from '../types/Job';
 import getAJob from '../api/getAJob'
-import Skeleton from 'react-loading-skeleton'
 import { Filter } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 export default function CandidateManagement({ jobData, jobDetails }: { jobData?: Partial<Job>, jobDetails?: boolean }) {
   const [isFilterBarOpen, setIsFilterBarOpen] = useState(false);
