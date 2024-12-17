@@ -103,7 +103,9 @@ export function JobTabs() {
           )}
         </TabsContent>
         <TabsContent value="talent-pool">
-          <CandidateManagement />
+          <CandidateManagement
+            jobData={jobData || undefined}
+          />
         </TabsContent>
         <TabsContent value="applications">
           <Card>

@@ -1,19 +1,25 @@
+'use client'
+
 import { motion, AnimatePresence } from 'framer-motion'
-import { Filter, X } from 'lucide-react'
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { DualRangeSlider } from "@/components/dualRangeSlider";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { useRouter, usePathname } from "next/navigation";
-import { useState, useCallback, useEffect } from "react";
-import { debounce } from "@/lib/utils";
-import { querySkills } from "@/app/api/querySkills";
-import { SkillStandardized } from "../types/SkillsStandardized";
-import { format, isSameDay, startOfDay } from "date-fns";
+import { Briefcase, Filter, Plus, Trash2, X } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
+import { DualRangeSlider } from "@/components/dualRangeSlider"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
+import { useState, useCallback, useEffect, useRef } from "react"
+import { debounce } from "@/lib/utils"
+import { querySkills } from "@/app/api/querySkills"
+import { SkillStandardized } from "../types/SkillsStandardized"
+import { format, isSameDay, startOfDay } from "date-fns"
+import { Job } from '../types/Job'
+import { Skeleton } from "@/components/ui/skeleton"
+import { getJobs } from "@/app/api/getJobs"
+import { useUser } from '../contexts/UserContext'
 
 interface FilterBarProps {
   isOpen: boolean;
@@ -29,6 +35,7 @@ interface FilterBarProps {
     jobId?: number | undefined;
   };
   setFilters: (filters: FilterBarProps['filters']) => void;
+  job?: Partial<Job>;
 }
 
 export default function FilterBar({
@@ -36,6 +43,7 @@ export default function FilterBar({
   setIsOpen,
   filters,
   setFilters,
+  job,
 }: FilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -43,21 +51,33 @@ export default function FilterBar({
   const [searchTerm, setSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState<SkillStandardized[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [, setAvailableInDays] = useState<number | undefined>(undefined);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [forJob, setForJob] = useState(false);
+  const [jobData, setJobData] = useState<Partial<Job> | undefined>(undefined);
+  const [isJobSelectorOpen, setIsJobSelectorOpen] = useState(false);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [isLoadingJobs, setIsLoadingJobs] = useState(false);
+  const { userData } = useUser();
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const searchParams = useSearchParams();
+
   useEffect(() => {
     setLocalFilters(filters);
+
+    // If job is provided, set forJob to true
+    if (searchParams.get('jobId') !== null) {
+      setForJob(true);
+    }
 
     // Update selected date if availableIn exists
     if (filters.availableIn !== undefined && filters.availableIn !== null) {
       const targetDate = new Date();
       targetDate.setDate(targetDate.getDate() + filters.availableIn);
       setSelectedDate(targetDate);
-      setAvailableInDays(filters.availableIn);
     } else {
       setSelectedDate(undefined);
-      setAvailableInDays(undefined);
     }
   }, [filters]);
 
@@ -148,6 +168,21 @@ export default function FilterBar({
     );
   };
 
+  const handleJobSelectorClick = async () => {
+    console.log('Click handler triggered');
+    setIsJobSelectorOpen(true);
+    setIsLoadingJobs(true);
+    try {
+      const fetchedJobs = await getJobs(userData?.employer_profile?.companies[0]?.id || 0);
+      console.log('Fetched jobs:', fetchedJobs);
+      setJobs(fetchedJobs);
+    } catch (error) {
+      console.error('Failed to fetch jobs:', error);
+    } finally {
+      setIsLoadingJobs(false);
+    }
+  };
+
   return (
     <motion.aside
       initial={false}
@@ -158,11 +193,11 @@ export default function FilterBar({
           ease: "easeInOut",
         },
       }}
-      className="flex flex-col transition-all duration-300 relative"
+      className="flex flex-col transition-all duration-200 relative"
     >
       <Card
-        className={`mb-4 sticky top-0 overflow-hidden transition-all duration-300 
-          ${isOpen ? 'w-full' : 'w-8 ml-0 shadow-lg'}`}
+        className={`mb-4 sticky top-0 overflow-hidden transition-all duration-200
+          ${isOpen ? 'w-full' : 'w-8 h-8 ml-0 shadow-lg'}`}
       >
         <AnimatePresence initial={false}>
           {isOpen ? (
@@ -186,14 +221,115 @@ export default function FilterBar({
                 </h2>
 
                 <div className="space-y-4 relative">
-                  {filters.jobId !== undefined && (
-                    <div className="flex flex-row items-center justify-start gap-2">
-                      <h2 className="text-sm font-medium">Filter for a Job</h2>
-                      <Checkbox
-                        id="jobId"
-                        checked={localFilters.jobId !== undefined}
-                        onCheckedChange={(checked) => handleLocalFilterChange({ jobId: checked ? filters.jobId : undefined })}
-                      />
+                  <div className="flex flex-row items-center justify-start gap-2">
+                    <h2 className="text-sm font-medium">Filter for a Job</h2>
+                    <Checkbox
+                      id="jobId"
+                      checked={forJob}
+                      onCheckedChange={(checked) => setForJob(checked as boolean)}
+                    />
+                  </div>
+                  {forJob && (
+                    <div ref={cardRef} className="rounded-lg border bg-card p-3 flex items-center gap-3 relative group">
+                      {!job?.id && jobData?.id && (
+                        <div className="absolute inset-0 bg-gray-500/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Trash2 
+                            className="h-16 w-16 text-red-400 cursor-pointer p-2 rounded-full bg-red-700" 
+                            onClick={() => {
+                              handleLocalFilterChange({ jobId: undefined });
+                              setJobData(undefined);
+                            }}
+                          />
+                        </div>
+                      )}
+                      {(job?.id || jobData?.id) && (
+                        <div className="flex items-center gap-3 flex-1 overflow-hidden">
+                          <Briefcase className="h-8 w-8 text-muted-foreground bg-gray-200 rounded-full p-1 flex-shrink-0" />
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-medium text-sm truncate">
+                              {job?.title?.slice(0, 25).concat('...') || jobData?.title?.slice(0, 25).concat('...') || "No job selected"}
+                            </span>
+                            <Badge variant="outline" className="text-xs w-fit">
+                              {job?.status || jobData?.status || "Draft"}
+                            </Badge>
+                          </div>
+                        </div>
+                      )}
+                      {!job?.id && !jobData && (
+                        <Popover open={isJobSelectorOpen} onOpenChange={setIsJobSelectorOpen}>
+                          <PopoverTrigger asChild>
+                            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+                            <div 
+                              className="flex items-center gap-2 flex-1 justify-center hover:cursor-pointer hover:bg-gray-200 rounded-lg transition-all duration-200"
+                              onClick={handleJobSelectorClick}
+                            >
+                              <Plus className="h-16 w-16 text-muted-foreground bg-gray-200 rounded-full p-1" />
+                            </div>
+                          </PopoverTrigger>
+                          <PopoverContent 
+                            className="w-[500px]"
+                            align="start"
+                            sideOffset={8}
+                          >
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ 
+                                opacity: 1, 
+                                height: jobs.length ? Math.ceil(jobs.length / 2) * 90 + (Math.ceil(jobs.length / 2) - 1) * 12 : 248,
+                              }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="px-2 pt-2 pb-2 overflow-hidden" // Adjusted padding
+                            >
+                              <div className="grid grid-cols-2 gap-3">
+                                {isLoadingJobs ? (
+                                  <>
+                                    {[...Array(4)].map((_, index) => (
+                                      <Skeleton
+                                        key={index}
+                                        className="h-[72px] w-full rounded-lg" // Slightly reduced skeleton height
+                                      />
+                                    ))}
+                                  </>
+                                ) : (
+                                  jobs.map((job) => (
+                                    <div
+                                      key={job.id}
+                                      className="p-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" // Reduced padding
+                                      onClick={() => {
+                                        handleLocalFilterChange({ jobId: job.id });
+                                        setJobData(job);
+                                        setIsJobSelectorOpen(false);
+                                      }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          handleLocalFilterChange({ jobId: job.id });
+                                          setJobData(job);
+                                          setIsJobSelectorOpen(false);
+                                        }
+                                      }}
+                                      role="button"
+                                      tabIndex={0}
+                                    >
+                                      <div className="flex items-center gap-3 h-[56px]"> 
+                                        <Briefcase className="h-10 w-10 text-muted-foreground bg-gray-200 rounded-full p-1 flex-shrink-0" /> 
+                                        <div className="flex flex-col min-w-0 justify-center">
+                                          <span className="font-medium text-sm truncate">
+                                            {job.title?.slice(0, 25).concat('...') || "Untitled"}
+                                          </span>
+                                          <Badge variant="outline" className="text-xs w-fit">
+                                            {job.status || "Draft"}
+                                          </Badge>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            </motion.div>
+                          </PopoverContent>
+                        </Popover>
+                      )}
                     </div>
                   )}
                   {/* Search Skills */}
@@ -294,7 +430,6 @@ export default function FilterBar({
                               // If the selected date is the same as the currently selected date, clear the selection
                               if (normalizedSelectedDate && isSameDay(normalizedDate, normalizedSelectedDate)) {
                                 setSelectedDate(undefined);
-                                setAvailableInDays(undefined);
                                 handleLocalFilterChange({ availableIn: undefined });
                               } else {
                                 setSelectedDate(normalizedDate);
@@ -307,7 +442,6 @@ export default function FilterBar({
 
                                 const diffTime = normalizedDate.getTime() - today.getTime();
                                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                setAvailableInDays(diffDays);
                                 handleLocalFilterChange({ availableIn: diffDays });
                               }
 

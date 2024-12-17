@@ -9,12 +9,15 @@ import { getCandidates } from '../api/getCandidates'
 import { User } from '../types/UserInitialTest'
 import Loader from './Loader'
 import { useSearchParams } from 'next/navigation'
+import { Job } from '../types/Job';
+import getAJob from '../api/getAJob'
 
-export default function CandidateManagement() {
+export default function CandidateManagement({ jobData }: { jobData?: Partial<Job> }) {
   const [isFilterBarOpen, setIsFilterBarOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [job, setJob] = useState<Partial<Job> | null>(jobData || null);
   const [filters, setFilters] = useState<{
     skills: string[];
     experienceLevel: string[];
@@ -76,6 +79,16 @@ export default function CandidateManagement() {
     }
 
     setIsLoading(true);
+    // VERY potential issue here!
+    async function fetchJob() {
+      if (newFilters.jobId) {
+        const job = await getAJob(newFilters.jobId.toString());
+        setJob(job);
+      }
+    }
+
+    fetchJob();
+
     fetchUsers(newFilters)
       .then((users) => {
         setUsers(users);
@@ -99,7 +112,19 @@ export default function CandidateManagement() {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <main className="flex-1 container mx-auto px-4 py-8 flex gap-6 overflow-y-auto">
-        <FilterBar isOpen={isFilterBarOpen} setIsOpen={setIsFilterBarOpen} filters={filters} setFilters={setFilters} />
+        <FilterBar 
+          isOpen={isFilterBarOpen} 
+          setIsOpen={setIsFilterBarOpen} 
+          filters={filters} 
+          setFilters={setFilters} 
+          job={
+            {
+              title: job?.title,
+              id: job?.id,
+              status: job?.status,
+            }
+          }
+        />
         <div className="flex-1 flex gap-6">
           <ScrollArea className="flex-1 overflow-hidden">
             {isLoading && (
