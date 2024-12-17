@@ -11,6 +11,9 @@ import Loader from './Loader'
 import { useSearchParams } from 'next/navigation'
 import { Job } from '../types/Job';
 import getAJob from '../api/getAJob'
+import Skeleton from 'react-loading-skeleton'
+import { Filter } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export default function CandidateManagement({ jobData, jobDetails }: { jobData?: Partial<Job>, jobDetails?: boolean }) {
   const [isFilterBarOpen, setIsFilterBarOpen] = useState(false);
@@ -112,20 +115,26 @@ export default function CandidateManagement({ jobData, jobDetails }: { jobData?:
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <main className="flex-1 container mx-auto px-4 py-8 flex gap-6 overflow-y-auto">
-        <FilterBar 
-          isOpen={isFilterBarOpen} 
-          setIsOpen={setIsFilterBarOpen} 
-          filters={filters} 
-          setFilters={setFilters} 
-          job={
-            {
-              title: job?.title,
-              id: job?.id,
-              status: job?.status,
+        {isLoading ? (
+          <div className="h-full flex items-start justify-start p-1 relative">
+            <Filter className="h-4 w-4" />
+          </div>
+        ) : (
+          <FilterBar 
+            isOpen={isFilterBarOpen} 
+            setIsOpen={setIsFilterBarOpen} 
+            filters={filters} 
+            setFilters={setFilters} 
+            job={
+              {
+                title: job?.title,
+                id: job?.id,
+                status: job?.status,
+              }
             }
-          }
-          jobDetails={jobDetails || false}
-        />
+            jobDetails={jobDetails || false}
+          />
+        )}
         <div className="flex-1 flex gap-6">
           <ScrollArea className="flex-1 overflow-hidden">
             {isLoading && (
