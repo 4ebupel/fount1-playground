@@ -12,7 +12,7 @@ import { useSearchParams } from 'next/navigation'
 import { Job } from '../types/Job';
 import getAJob from '../api/getAJob'
 
-export default function CandidateManagement({ jobData }: { jobData?: Partial<Job> }) {
+export default function CandidateManagement({ jobData, jobDetails }: { jobData?: Partial<Job>, jobDetails?: boolean }) {
   const [isFilterBarOpen, setIsFilterBarOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -124,6 +124,7 @@ export default function CandidateManagement({ jobData }: { jobData?: Partial<Job
               status: job?.status,
             }
           }
+          jobDetails={jobDetails || false}
         />
         <div className="flex-1 flex gap-6">
           <ScrollArea className="flex-1 overflow-hidden">
