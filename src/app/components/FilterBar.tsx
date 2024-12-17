@@ -173,7 +173,7 @@ export default function FilterBar({
     setIsJobSelectorOpen(true);
     setIsLoadingJobs(true);
     try {
-      const fetchedJobs = await getJobs(userData?.employer_profile?.companies[0]?.id || 0);
+      const fetchedJobs = await getJobs(userData?.employer_profile?.companies[0]?.id || 0, true);
       console.log('Fetched jobs:', fetchedJobs);
       setJobs(fetchedJobs);
     } catch (error) {
