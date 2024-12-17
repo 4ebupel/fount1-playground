@@ -36,6 +36,7 @@ interface FilterBarProps {
   };
   setFilters: (filters: FilterBarProps['filters']) => void;
   job?: Partial<Job>;
+  jobDetails?: boolean;
 }
 
 export default function FilterBar({
@@ -44,6 +45,7 @@ export default function FilterBar({
   filters,
   setFilters,
   job,
+  jobDetails,
 }: FilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -54,7 +56,7 @@ export default function FilterBar({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [forJob, setForJob] = useState(false);
-  const [jobData, setJobData] = useState<Partial<Job> | undefined>(undefined);
+  const [jobData, setJobData] = useState<Partial<Job> | undefined>(job ||undefined);
   const [isJobSelectorOpen, setIsJobSelectorOpen] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
@@ -231,7 +233,7 @@ export default function FilterBar({
                   </div>
                   {forJob && (
                     <div ref={cardRef} className="rounded-lg border bg-card p-3 flex items-center gap-3 relative group">
-                      {!job?.id && jobData?.id && (
+                      {!jobDetails && jobData?.id && (
                         <div className="absolute inset-0 bg-gray-500/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <Trash2 
                             className="h-16 w-16 text-red-400 cursor-pointer p-2 rounded-full bg-red-700" 
@@ -242,20 +244,20 @@ export default function FilterBar({
                           />
                         </div>
                       )}
-                      {(job?.id || jobData?.id) && (
+                      {jobData?.id && (
                         <div className="flex items-center gap-3 flex-1 overflow-hidden">
                           <Briefcase className="h-8 w-8 text-muted-foreground bg-gray-200 rounded-full p-1 flex-shrink-0" />
                           <div className="flex flex-col min-w-0">
                             <span className="font-medium text-sm truncate">
-                              {job?.title?.slice(0, 25).concat('...') || jobData?.title?.slice(0, 25).concat('...') || "No job selected"}
+                              {jobData?.title?.slice(0, 25).concat('...') || "No job selected"}
                             </span>
                             <Badge variant="outline" className="text-xs w-fit">
-                              {job?.status || jobData?.status || "Draft"}
+                              {jobData?.status || "Draft"}
                             </Badge>
                           </div>
                         </div>
                       )}
-                      {!job?.id && !jobData && (
+                      {!jobData?.id && (
                         <Popover open={isJobSelectorOpen} onOpenChange={setIsJobSelectorOpen}>
                           <PopoverTrigger asChild>
                             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
