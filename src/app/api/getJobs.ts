@@ -1,6 +1,6 @@
-export async function getJobs(company_id: number) {
+export async function getJobs(company_id: number, available_only: boolean = false) {
   try {
-    const response = await fetch(`/api/jobs/?company_id=${company_id}`);
+    const response = await fetch(`/api/jobs/?company_id=${company_id}&available_only=${available_only}`);
 
     if (!response.ok) {
       throw new Error('Failed to fetch jobs');

@@ -11,9 +11,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const company_id = request.nextUrl.searchParams.get('company_id');
+    const company_id = request.nextUrl.searchParams.get('company_id');  
+    const available_only = request.nextUrl.searchParams.get('available_only');
     const apiClient = await apiClientServer();
-    const response = await apiClient.get(`/jobs`, { params: { company_id } });
+    const response = await apiClient.get(`/jobs`, { params: { company_id, available_only } });
     const jobs = response.data;
     return NextResponse.json(jobs);
   } catch (error) {
